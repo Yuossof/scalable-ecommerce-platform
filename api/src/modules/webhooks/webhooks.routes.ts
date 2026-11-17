@@ -1,5 +1,5 @@
 import { Router } from "express";
-import stripeWebhookRoutes from "./stripe/stripe-webhook.routes";
+import stripeWebhookRoutes from "./stripe/stripe-webhook.routes.js";
 
 const router = Router();
 

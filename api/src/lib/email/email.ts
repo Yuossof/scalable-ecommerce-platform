@@ -1,5 +1,5 @@
-import { resend } from "./resend.lib";
-import { ISendEmailParams } from "./types";
+import { resend } from "./resend.lib.js";
+import { ISendEmailParams } from "./types.js";
 
 export async function sendMail(data: ISendEmailParams) {
     return await resend.emails.send({

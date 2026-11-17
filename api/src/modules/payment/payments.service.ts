@@ -1,8 +1,8 @@
 import Stripe from "stripe";
-import { stripeClient } from "../../lib/stripe/stripe.lib";
-import { PaymentsRepository } from "./payments.repository";
-import { PaymentStatus } from "./payments.types";
-import { notifyUser } from "../../grpc/notifications/notification.client";
+import { stripeClient } from "../../lib/stripe/stripe.lib.js";
+import { PaymentsRepository } from "./payments.repository.js";
+import { PaymentStatus } from "./payments.types.js";
+import { notifyUser } from "../../grpc/notifications/notification.client.js";
 
 export class PaymentsService {
     private paymentRepository: PaymentsRepository

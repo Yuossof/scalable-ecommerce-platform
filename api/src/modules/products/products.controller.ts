@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ProductsService } from "./products.service";
-import { CreateProductAttributeDTO, CreateSkuDTO } from "./products.types";
+import { ProductsService } from "./products.service.js";
+import { CreateProductAttributeDTO, CreateSkuDTO } from "./products.types.js";
 
 export class ProductsController {
   private productService: ProductsService

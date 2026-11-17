@@ -1,6 +1,6 @@
-import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.types";
-import { BaseError } from "../../common/errors/base.error";
-import { CategoriesRepository } from "./categories.repository";
+import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.types.js";
+import { BaseError } from "../../common/errors/base.error.js";
+import { CategoriesRepository } from "./categories.repository.js";
 
 export class CategoriesService {
     private repository: CategoriesRepository

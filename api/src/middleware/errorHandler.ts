@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { BaseError } from "../common/errors/base.error";
+import { BaseError } from "../common/errors/base.error.js";
 import winston from "winston";
 
 

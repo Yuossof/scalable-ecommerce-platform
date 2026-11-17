@@ -1,8 +1,8 @@
-import { S3StorageService } from "../../services/s3/s3.service";
-import { ProductsRepository } from "./products.repository";
-import { CreateProductAttributeDTO, CreateProductDTO, CreateSkuDTO, IProduct } from "./products.types";
-import { BaseError } from "../../common/errors/base.error";
-import { client } from "../../config/redis";
+import { S3StorageService } from "../../services/s3/s3.service.js";
+import { ProductsRepository } from "./products.repository.js";
+import { CreateProductAttributeDTO, CreateProductDTO, CreateSkuDTO, IProduct } from "./products.types.js";
+import { BaseError } from "../../common/errors/base.error.js";
+import { client } from "../../config/redis.js";
 
 export class ProductsService {
     private productRepository: ProductsRepository

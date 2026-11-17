@@ -1,6 +1,6 @@
-import { BaseError } from "../../../common/errors/base.error";
-import { verifyEmailTemplate } from "../../../emails/templates/verify-email";
-import { sendMail } from "../../../lib/email/email";
+import { BaseError } from "../../../common/errors/base.error.js";
+import { verifyEmailTemplate } from "../../../emails/templates/verify-email.js";
+import { sendMail } from "../../../lib/email/email.js";
 
 export class EmailService {
     async sendVerificationEmail(email: string, verificationLink: string) {

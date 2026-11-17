@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { isAuthenticated } from "../../middleware/auth/authentication.middleware";
-import { AddressesController } from "./addresses.controller";
-import { AddressesRepository } from "./addresses.repository";
-import { AddressesService } from "./addresses.service";
+import { isAuthenticated } from "../../middleware/auth/authentication.middleware.js";
+import { AddressesController } from "./addresses.controller.js";
+import { AddressesRepository } from "./addresses.repository.js";
+import { AddressesService } from "./addresses.service.js";
 
 const router = Router()
 const addressesRepository = new AddressesRepository()

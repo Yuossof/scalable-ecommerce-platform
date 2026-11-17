@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthService } from "./auth.service";
-import { CreateUserDTO, ILoginUser } from "./auth.types";
-import { setAuthCookies } from "./auth.helper";
-import { TokenService } from "../../shared/services/token.service";
-import config from "../../config/env";
+import { AuthService } from "./auth.service.js";
+import { CreateUserDTO, ILoginUser } from "./auth.types.js";
+import { setAuthCookies } from "./auth.helper.js";
+import { TokenService } from "../../shared/services/token.service.js";
+import config from "../../config/env.js";
 
 export class AuthController {
   private authService: AuthService;

@@ -1,7 +1,7 @@
-import { CartItemsRepository } from "../carts/cart-items.repository";
-import { OrdersRepository } from "./orders.repository";
-import { PaymentsService } from "../payment/payments.service";
-import { BaseError } from "../../common/errors/base.error";
+import { CartItemsRepository } from "../carts/cart-items.repository.js";
+import { OrdersRepository } from "./orders.repository.js";
+import { PaymentsService } from "../payment/payments.service.js";
+import { BaseError } from "../../common/errors/base.error.js";
 
 export class OrdersService {
     private orderRepository: OrdersRepository

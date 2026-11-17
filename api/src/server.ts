@@ -1,11 +1,11 @@
 import "dotenv/config";
 
-import app from "./app";
+import app from "./app.js";
 
-import config from "./config/env";
+import config from "./config/env.js";
 
-import { connectToRedis } from "./config/redis";
-import { rabbitMQ } from "./config/rabbitmq";
+import { connectToRedis } from "./config/redis.js";
+import { rabbitMQ } from "./config/rabbitmq.js";
 
 async function startServer() {
   try {

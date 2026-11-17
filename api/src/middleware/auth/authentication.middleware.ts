@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { BaseError } from "../../common/errors/base.error";
-import { TokenService } from "../../shared/services/token.service";
-import sql from "../../config/db";
-import { UserRole } from "../../modules/auth/auth.types";
+import { BaseError } from "../../common/errors/base.error.js";
+import { TokenService } from "../../shared/services/token.service.js";
+import sql from "../../config/db.js";
+import { UserRole } from "../../modules/auth/auth.types.js";
 
 const tokenService = new TokenService()
 

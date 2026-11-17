@@ -1,6 +1,6 @@
-import { AddressesRepository } from "./addresses.repository";
-import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types";
-import { BaseError } from "../../common/errors/base.error";
+import { AddressesRepository } from "./addresses.repository.js";
+import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types.js";
+import { BaseError } from "../../common/errors/base.error.js";
 
 function validateAddress(data: CreateAddressDTO) {
     const requiredFields = ["full_name", "phone", "city", "street"] as const

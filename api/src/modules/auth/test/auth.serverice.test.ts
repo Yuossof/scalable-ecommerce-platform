@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { AuthRepository } from "../auth.repository";
-import { AuthService } from "../auth.service";
-import { BaseError } from "../../../common/errors/base.error";
+import { AuthRepository } from "../auth.repository.js";
+import { AuthService } from "../auth.service.js";
+import { BaseError } from "../../../common/errors/base.error.js";
 
 type User = {
     id: string;

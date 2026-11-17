@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { isAuthenticated } from "../../middleware/auth/authentication.middleware";
-import { CartsService } from "./carts.service";
-import { CartsRepository } from "./carts.repository";
-import { CartItemsRepository } from "./cart-items.repository";
-import { CartsController } from "./carts.controller";
+import { isAuthenticated } from "../../middleware/auth/authentication.middleware.js";
+import { CartsService } from "./carts.service.js";
+import { CartsRepository } from "./carts.repository.js";
+import { CartItemsRepository } from "./cart-items.repository.js";
+import { CartsController } from "./carts.controller.js";
 
 const router = Router()
 const cartsRepo = new CartsRepository()

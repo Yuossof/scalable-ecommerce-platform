@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { BaseError } from "../../common/errors/base.error";
-import { ProductsService } from "./products.service";
+import { BaseError } from "../../common/errors/base.error.js";
+import { ProductsService } from "./products.service.js";
 
 const skuData = {
     product_id: "product-1",

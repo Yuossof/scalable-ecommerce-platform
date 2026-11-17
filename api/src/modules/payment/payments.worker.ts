@@ -1,8 +1,8 @@
 import "dotenv/config";
-import { rabbitMQ } from "../../config/rabbitmq"
-import { PaymentsRepository } from "./payments.repository"
-import { PaymentsService } from "./payments.service"
-import { InventoryRepository } from "../products/inventory.repository";
+import { rabbitMQ } from "../../config/rabbitmq.js"
+import { PaymentsRepository } from "./payments.repository.js"
+import { PaymentsService } from "./payments.service.js"
+import { InventoryRepository } from "../products/inventory.repository.js";
 
 const inventoryRepo = new InventoryRepository()
 const paymentsRepo = new PaymentsRepository(inventoryRepo)

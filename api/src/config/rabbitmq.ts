@@ -1,5 +1,5 @@
 import amqp, { Channel } from 'amqplib';
-import config from './env';
+import config from './env.js';
 
 class RabbitMQClient {
     private connection: any | null = null;

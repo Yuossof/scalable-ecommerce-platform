@@ -1,6 +1,6 @@
-import { CartItemsRepository } from "./cart-items.repository";
-import { CartsRepository } from "./carts.repository";
-import { BaseError } from "../../common/errors/base.error";
+import { CartItemsRepository } from "./cart-items.repository.js";
+import { CartsRepository } from "./carts.repository.js";
+import { BaseError } from "../../common/errors/base.error.js";
 
 export class CartsService {
     private cartItemsRepository: CartItemsRepository

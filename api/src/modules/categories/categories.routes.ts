@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { CategoriesController } from "./categories.controller";
-import { CategoriesService } from "./categories.service";
-import { CategoriesRepository } from "./categories.repository";
-import { isAuthenticated, requireRole } from "../../middleware/auth/authentication.middleware";
+import { CategoriesController } from "./categories.controller.js";
+import { CategoriesService } from "./categories.service.js";
+import { CategoriesRepository } from "./categories.repository.js";
+import { isAuthenticated, requireRole } from "../../middleware/auth/authentication.middleware.js";
 
 
 const router = Router()

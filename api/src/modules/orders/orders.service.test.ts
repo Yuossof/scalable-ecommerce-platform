@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { OrdersService } from "./orders.service";
+import { OrdersService } from "./orders.service.js";
 
 describe("OrdersService.create", () => {
     it("returns the created order when the notification service is unavailable", async () => {

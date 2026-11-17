@@ -1,7 +1,7 @@
-import sql from "../../config/db";
-import { IOrderItem } from "../orders/orders.types";
-import { InventoryRepository } from "../products/inventory.repository";
-import { CreatePaymentDTO, PaymentStatus } from "./payments.types";
+import sql from "../../config/db.js";
+import { IOrderItem } from "../orders/orders.types.js";
+import { InventoryRepository } from "../products/inventory.repository.js";
+import { CreatePaymentDTO, PaymentStatus } from "./payments.types.js";
 
 export class PaymentsRepository {
   private inventoryRepository: InventoryRepository;

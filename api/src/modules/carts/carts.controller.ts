@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import {  CreateCartItemDTO } from "./carts.types";
-import { CartsService } from "./carts.service";
+import {  CreateCartItemDTO } from "./carts.types.js";
+import { CartsService } from "./carts.service.js";
 
 export class CartsController {
     private cartsService: CartsService

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { BaseError } from "../../common/errors/base.error";
-import { TokenService } from "../../shared/services/token.service";
+import { BaseError } from "../../common/errors/base.error.js";
+import { TokenService } from "../../shared/services/token.service.js";
 
 const tokenService = new TokenService()
 

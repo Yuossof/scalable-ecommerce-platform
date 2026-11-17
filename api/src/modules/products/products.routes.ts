@@ -1,10 +1,10 @@
 import { Router } from "express"
-import { upload } from "../../utils/multer.utils"
-import { ProductsService } from "./products.service";
-import { ProductsController } from "./products.controller";
-import { ProductsRepository } from "./products.repository";
-import { S3StorageService } from "../../services/s3/s3.service";
-import { isAuthenticated, requireRole } from "../../middleware/auth/authentication.middleware";
+import { upload } from "../../utils/multer.utils.js"
+import { ProductsService } from "./products.service.js";
+import { ProductsController } from "./products.controller.js";
+import { ProductsRepository } from "./products.repository.js";
+import { S3StorageService } from "../../services/s3/s3.service.js";
+import { isAuthenticated, requireRole } from "../../middleware/auth/authentication.middleware.js";
 
 const router = Router()
 

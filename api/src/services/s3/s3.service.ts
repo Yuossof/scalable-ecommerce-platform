@@ -1,6 +1,6 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3"
-import { s3 } from "../../config/s3"
-import config from "../../config/env";
+import { s3 } from "../../config/s3.js"
+import config from "../../config/env.js";
 
 
 export class S3StorageService {

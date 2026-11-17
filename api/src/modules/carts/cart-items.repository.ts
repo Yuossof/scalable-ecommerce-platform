@@ -1,5 +1,5 @@
-import sql from "../../config/db";
-import { ICartItemWithSku } from "../orders/orders.types";
+import sql from "../../config/db.js";
+import { ICartItemWithSku } from "../orders/orders.types.js";
 
 export class CartItemsRepository {
     async addItemToCart(cartId: string, product_sku_id: string, quantity: number) {

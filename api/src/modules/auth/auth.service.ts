@@ -1,12 +1,12 @@
 import bcrypt from "bcryptjs";
 
-import { BaseError } from "../../common/errors/base.error";
-import { CreateUserDTO, ILoginUser } from "./auth.types";
-import { AuthRepository } from "./auth.repository";
-import { EmailVerificationTokenService } from "./services/email-verification-token.service";
-import { EmailService } from "../../shared/services/email/email.service";
-import { client } from "../../config/redis";
-import { TokenService } from "../../shared/services/token.service";
+import { BaseError } from "../../common/errors/base.error.js";
+import { CreateUserDTO, ILoginUser } from "./auth.types.js";
+import { AuthRepository } from "./auth.repository.js";
+import { EmailVerificationTokenService } from "./services/email-verification-token.service.js";
+import { EmailService } from "../../shared/services/email/email.service.js";
+import { client } from "../../config/redis.js";
+import { TokenService } from "../../shared/services/token.service.js";
 
 
 export class AuthService {

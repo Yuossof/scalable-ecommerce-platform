@@ -1,5 +1,5 @@
-import sql from "../../config/db";
-import { CreateCategoryDTO } from "./categories.types";
+import sql from "../../config/db.js";
+import { CreateCategoryDTO } from "./categories.types.js";
 
 export class CategoriesRepository {
     async findByName(categoryName: string) {

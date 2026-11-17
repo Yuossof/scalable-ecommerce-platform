@@ -1,7 +1,7 @@
 
 import Stripe from "stripe";
-import { rabbitMQ } from "../../../config/rabbitmq";
-import { PaymentStatus } from "../../payment/payments.types";
+import { rabbitMQ } from "../../../config/rabbitmq.js";
+import { PaymentStatus } from "../../payment/payments.types.js";
 
 export class StripeWebhookService {
   async handleEvent(event: Stripe.Event) {

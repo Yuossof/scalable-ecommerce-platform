@@ -1,5 +1,5 @@
-import sql from "../../config/db";
-import { ICartItemWithSku, IOrder, IOrderItem, OrderPaymentStatus } from "./orders.types";
+import sql from "../../config/db.js";
+import { ICartItemWithSku, IOrder, IOrderItem, OrderPaymentStatus } from "./orders.types.js";
 
 export class OrdersRepository {
     async createWithItems(

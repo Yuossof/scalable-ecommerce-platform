@@ -1,6 +1,6 @@
-import { BaseError } from "../../common/errors/base.error";
-import sql from "../../config/db";
-import { CreateUserDTO, IUser } from "./auth.types";
+import { BaseError } from "../../common/errors/base.error.js";
+import sql from "../../config/db.js";
+import { CreateUserDTO, IUser } from "./auth.types.js";
 
 export class AuthRepository {
     async findByEmail(email: string): Promise<{ id: string, password: string } | undefined> {

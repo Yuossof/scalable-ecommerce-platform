@@ -1,5 +1,5 @@
 import postgres from "postgres";
-import { IOrderItem } from "../orders/orders.types";
+import { IOrderItem } from "../orders/orders.types.js";
 export class InventoryRepository {
     async updateInventory(tx: postgres.TransactionSql, items: IOrderItem[]) {
         const values = items.map(item => [

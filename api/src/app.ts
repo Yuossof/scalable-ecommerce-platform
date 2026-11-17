@@ -1,11 +1,11 @@
 import express from "express";
-import { errorHandler } from "./middleware/errorHandler";
+import { errorHandler } from "./middleware/errorHandler.js";
 import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
-import config from "./config/env";
+import config from "./config/env.js";
 
-import routes from "./routes";
+import routes from "./routes/index.js";
 
 const app = express();
 

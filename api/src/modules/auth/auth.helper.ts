@@ -1,7 +1,7 @@
 import { Response } from "express";
-import config from "../../config/env";
-import { client } from "../../config/redis";
-import { TokenService } from "../../shared/services/token.service";
+import config from "../../config/env.js";
+import { client } from "../../config/redis.js";
+import { TokenService } from "../../shared/services/token.service.js";
 
 export const setAuthCookies = async (
     res: Response,

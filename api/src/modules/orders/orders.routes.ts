@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { OrdersRepository } from "./orders.repository";
-import { OrdersService } from "./orders.service";
-import { CartItemsRepository } from "../carts/cart-items.repository";
-import { OrdersController } from "./orders.controller";
-import { isAuthenticated } from "../../middleware/auth/authentication.middleware";
-import { PaymentsService } from "../payment/payments.service";
-import { PaymentsRepository } from "../payment/payments.repository";
-import { InventoryRepository } from "../products/inventory.repository";
+import { OrdersRepository } from "./orders.repository.js";
+import { OrdersService } from "./orders.service.js";
+import { CartItemsRepository } from "../carts/cart-items.repository.js";
+import { OrdersController } from "./orders.controller.js";
+import { isAuthenticated } from "../../middleware/auth/authentication.middleware.js";
+import { PaymentsService } from "../payment/payments.service.js";
+import { PaymentsRepository } from "../payment/payments.repository.js";
+import { InventoryRepository } from "../products/inventory.repository.js";
 
 const router = Router()
 

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { stripeClient } from "../../../lib/stripe/stripe.lib";
-import { StripeWebhookService } from "./stripe-webhook.service";
-import config from "../../../config/env";
+import { stripeClient } from "../../../lib/stripe/stripe.lib.js";
+import { StripeWebhookService } from "./stripe-webhook.service.js";
+import config from "../../../config/env.js";
 
 export class StripeWebhookController {
     constructor(

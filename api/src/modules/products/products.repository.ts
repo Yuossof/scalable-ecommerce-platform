@@ -1,5 +1,5 @@
-import sql from "../../config/db";
-import { CreateProductAttributeDTO, CreateProductDTO, CreateSkuDTO, IProduct, ISku } from "./products.types";
+import sql from "../../config/db.js";
+import { CreateProductAttributeDTO, CreateProductDTO, CreateSkuDTO, IProduct, ISku } from "./products.types.js";
 
 export class ProductsRepository {
     async create(

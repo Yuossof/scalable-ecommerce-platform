@@ -1,11 +1,11 @@
 import { Router } from "express";
-import authRoutes from "../modules/auth/auth.routes";
-import categoryRoutes from "../modules/categories/categories.routes"
-import productRoutes from "../modules/products/products.routes"
-import orderRoutes from "../modules/orders/orders.routes"
-import cartRoutes from "../modules/carts/carts.routes"
-import addressRoutes from "../modules/addresses/addresses.routes"
-import webhookRoutes from "../modules/webhooks/webhooks.routes"
+import authRoutes from "../modules/auth/auth.routes.js";
+import categoryRoutes from "../modules/categories/categories.routes.js"
+import productRoutes from "../modules/products/products.routes.js"
+import orderRoutes from "../modules/orders/orders.routes.js"
+import cartRoutes from "../modules/carts/carts.routes.js"
+import addressRoutes from "../modules/addresses/addresses.routes.js"
+import webhookRoutes from "../modules/webhooks/webhooks.routes.js"
 
 const router = Router();
 

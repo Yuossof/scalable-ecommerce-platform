@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { CategoriesService } from "./categories.service";
-import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.types";
+import { CategoriesService } from "./categories.service.js";
+import { CreateCategoryDTO, UpdateCategoryDTO } from "./categories.types.js";
 
 export class CategoriesController {
     private categoryService: CategoriesService

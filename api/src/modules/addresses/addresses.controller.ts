@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { AddressesService } from "./addresses.service";
-import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types";
+import { AddressesService } from "./addresses.service.js";
+import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types.js";
 
 export class AddressesController {
     private addressesService: AddressesService

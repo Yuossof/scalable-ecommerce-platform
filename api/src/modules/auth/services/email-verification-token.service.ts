@@ -1,5 +1,5 @@
 import crypto from "crypto"
-import { client } from "../../../config/redis";
+import { client } from "../../../config/redis.js";
 
 export class EmailVerificationTokenService {
     async create(userId: string) {

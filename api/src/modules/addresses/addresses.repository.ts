@@ -1,5 +1,5 @@
-import sql from "../../config/db";
-import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types";
+import sql from "../../config/db.js";
+import { CreateAddressDTO, UpdateAddressDTO } from "./addresses.types.js";
 
 export class AddressesRepository {
     async create(userId: string, data: CreateAddressDTO) {
