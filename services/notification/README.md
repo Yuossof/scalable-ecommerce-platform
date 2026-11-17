@@ -20,9 +20,11 @@ Stripe webhook ──▶ API (payments.service.ts)
 ```
 
 - The API is the **gRPC client**. It loads the contract from
-  `api/proto/notification.proto` and connects to `localhost:50051` in
+  `api/proto/notification.proto` and connects to `localhost:50051` by default
+  (or `NOTIFICATION_SERVICE_URL` when configured) in
   [`api/src/grpc/notifications/notification.client.ts`](../api/src/grpc/notifications/notification.client.ts)
-  with a 5-second deadline.
+  with a 5-second deadline. Docker Compose sets the URL to
+  `notification:50051`.
 - The API calls `notifyUser(...)` from
   [`api/src/modules/payment/payments.service.ts`](../api/src/modules/payment/payments.service.ts)
   after a payment status update (e.g. to send an "Order Confirmed" email).
@@ -117,8 +119,8 @@ The server listens for gRPC on `:50051` and logs:
 gRPC server listening on :50051
 ```
 
-The API connects to `localhost:50051`, so start this service before exercising
-the payment/notification flow.
+Outside Docker Compose, the API connects to `localhost:50051` by default, so
+start this service before exercising the payment/notification flow.
 
 ## Configuration
 

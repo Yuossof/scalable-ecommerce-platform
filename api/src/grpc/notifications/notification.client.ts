@@ -23,7 +23,7 @@ const proto = grpc.loadPackageDefinition(
 ) as any;
 
 const client = new proto.notification.NotificationService(
-    "localhost:50051",
+    process.env.NOTIFICATION_SERVICE_URL || "localhost:50051",
     grpc.credentials.createInsecure()
 );
 

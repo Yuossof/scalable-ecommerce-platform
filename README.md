@@ -38,7 +38,8 @@ Each project has its own README with setup, scripts and internals:
   best-effort after payment status updates so email failures never block an
   order.
 - PostgreSQL, Redis and RabbitMQ are supporting infrastructure for the API and
-  are started by the API's `docker-compose.yaml`.
+  are started by the root `docker-compose.yaml`, together with the API and
+  notification service.
 
 ## Ports
 
@@ -69,6 +70,10 @@ The API is then available at `http://localhost:8090` (health check:
 Docker (`npm install && npm run db:migrate && npm run dev`).
 
 ### 2. Notification service
+
+When using the root Docker Compose file, set `RESEND_API_KEY` in
+`secrets/notification.env`; Compose starts the notification service and connects
+the API to it. For local development outside Compose:
 
 ```bash
 cd services/notification

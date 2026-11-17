@@ -59,6 +59,17 @@ services:
       timeout: 5s
       retries: 10
 
+  notification:
+    build:
+      context: ./services/notification
+      dockerfile: Dockerfile
+    container_name: ecommerce-notification
+    restart: unless-stopped
+    env_file:
+      - ./secrets/notification.env
+    ports:
+      - "50051:50051"
+
   api:
     build:
       context: ./api
@@ -68,6 +79,9 @@ services:
     restart: unless-stopped
     env_file:
       - ./secrets/api.env
+
+    environment:
+      NOTIFICATION_SERVICE_URL: notification:50051
 
     # environment:
     #   NODE_ENV: ${NODE_ENV:-production}
@@ -102,6 +116,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      notification:
+        condition: service_started
     healthcheck:
       test:
         [
