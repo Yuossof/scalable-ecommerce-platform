@@ -7,6 +7,8 @@ on:
      
     paths:
       - "api/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/ci-api.yml"
   pull_request:
     branches:
       - main
@@ -14,6 +16,8 @@ on:
 
     paths:
       - "api/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/ci-api.yml"
 
 jobs:
   deplory:
@@ -38,7 +42,7 @@ jobs:
         run: echo "testing stage"
 
       - name: Build and Deploy
-        run: docker compose up -d --build api
+        run: RABBITMQ_AMQP_HOST_PORT=5673 RABBITMQ_MANAGEMENT_HOST_PORT=15673 docker compose up -d --build api
 
       - name: Check containers
         run: docker compose ps

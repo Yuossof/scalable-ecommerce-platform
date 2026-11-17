@@ -52,6 +52,10 @@ Each project has its own README with setup, scripts and internals:
 | Redis | `6379` |
 | RabbitMQ | `5672` (AMQP), `15672` (management UI) |
 
+If a host port is already in use, override RabbitMQ's published host ports with
+`RABBITMQ_AMQP_HOST_PORT` and `RABBITMQ_MANAGEMENT_HOST_PORT`. The API continues
+to connect to RabbitMQ over the internal Compose network on port `5672`.
+
 ## Quick Start
 
 The projects are independent and are installed/run separately. A typical local
