@@ -9,7 +9,7 @@ services:
     ports:
       - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_v18:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -144,6 +144,6 @@ services:
       - "${WEB_HOST_PORT:-3090}:3090"
 
 volumes:
-  pgdata:
+  pgdata_v18:
   redisdata:
   rabbitmqdata:
