@@ -20,9 +20,6 @@ services:
     image: redis:7-alpine
     container_name: ecommerce-redis
     restart: unless-stopped
-    env_file:
-      - ./secrets/redis.env
-
     command:
       - sh
       - -c
@@ -66,7 +63,7 @@ services:
     container_name: ecommerce-notification
     restart: unless-stopped
     env_file:
-      - ./secrets/notification.env
+      - /home/youssof/secrets/scalable-ecommerce-platform/notification.env
     ports:
       - "50051:50051"
 
