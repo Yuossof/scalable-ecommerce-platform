@@ -1,13 +1,19 @@
+name: Web workflow - NextJS
+
 on:
   push:
     branches:
       - main
       - "release/**"
-     
+    paths:
+      - "web/**"
+
   pull_request:
     branches:
       - main
       - "release/**"
+    paths:
+      - "web/**"
 
 jobs:
   deplory:

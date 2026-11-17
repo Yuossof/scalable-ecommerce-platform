@@ -1,13 +1,19 @@
+name: API workflow - NodeJS
 on:
   push:
     branches:
       - main
       - "release/**"
      
+    paths:
+      - "api/**"
   pull_request:
     branches:
       - main
       - "release/**"
+
+    paths:
+      - "api/**"
 
 jobs:
   deplory:

@@ -1,25 +1,33 @@
-FROM node:26.13.1-alpine as base
+
+FROM node:26.13.1-alpine AS base
 
 WORKDIR /app
 
-FROM base as deps
+# Install all dependencies
+FROM base AS deps
 
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 
-FROM deps as builder
+# Build application
+FROM base AS builder
 
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
 RUN npm run build
 
-FROM base as prod-deps
+# Install production dependencies only
+FROM base AS prod-deps
 
 COPY package*.json ./
 RUN npm ci --omit=dev
 
+# Production image
 FROM base AS runner
 
 ENV NODE_ENV=production
+
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist

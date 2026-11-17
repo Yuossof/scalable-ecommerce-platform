@@ -1,14 +1,18 @@
+name: Notification service workflow - Golang
+
 on:
   push:
     branches:
       - main
       - "release/**"
-     
+    paths:
+      - "services/notification/**"
   pull_request:
     branches:
       - main
       - "release/**"
-
+    paths:
+      - "services/notification/**"
 jobs:
   deplory:
     runs-on: self-hosted
