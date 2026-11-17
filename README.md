@@ -52,9 +52,10 @@ Each project has its own README with setup, scripts and internals:
 | Redis | `6379` |
 | RabbitMQ | `5672` (AMQP), `15672` (management UI) |
 
-If a host port is already in use, override RabbitMQ's published host ports with
-`RABBITMQ_AMQP_HOST_PORT` and `RABBITMQ_MANAGEMENT_HOST_PORT`. The API continues
-to connect to RabbitMQ over the internal Compose network on port `5672`.
+Published host ports can be overridden with the service's `*_HOST_PORT`
+variables (for example, `POSTGRES_HOST_PORT` or `RABBITMQ_AMQP_HOST_PORT`). The
+API and other containers continue to communicate over Compose's internal
+network on their normal container ports.
 
 ## Quick Start
 

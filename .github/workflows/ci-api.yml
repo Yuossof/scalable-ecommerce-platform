@@ -42,7 +42,13 @@ jobs:
         run: echo "testing stage"
 
       - name: Build and Deploy
-        run: RABBITMQ_AMQP_HOST_PORT=5673 RABBITMQ_MANAGEMENT_HOST_PORT=15673 docker compose up -d --build api
+        env:
+          POSTGRES_HOST_PORT: "0"
+          REDIS_HOST_PORT: "0"
+          RABBITMQ_AMQP_HOST_PORT: "0"
+          RABBITMQ_MANAGEMENT_HOST_PORT: "0"
+          NOTIFICATION_HOST_PORT: "0"
+        run: docker compose up -d --build api
 
       - name: Check containers
         run: docker compose ps

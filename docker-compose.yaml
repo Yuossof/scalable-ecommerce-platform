@@ -7,7 +7,7 @@ services:
       - /home/youssof/secrets/scalable-ecommerce-platform/postgres.env
 
     ports:
-      - "5433:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -26,7 +26,7 @@ services:
       - 'exec redis-server --requirepass "$$REDIS_PASSWORD"'
 
     ports:
-      - "6379:6379"
+      - "${REDIS_HOST_PORT:-6379}:6379"
     volumes:
       - redisdata:/data
 
@@ -65,7 +65,7 @@ services:
     env_file:
       - /home/youssof/secrets/scalable-ecommerce-platform/notification.env
     ports:
-      - "50051:50051"
+      - "${NOTIFICATION_HOST_PORT:-50051}:50051"
 
   api:
     build:
@@ -105,7 +105,7 @@ services:
     #   RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672
 
     ports:
-      - "${PORT:-8090}:8090"
+      - "${API_HOST_PORT:-8090}:8090"
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,7 +141,7 @@ services:
       - /home/youssof/secrets/scalable-ecommerce-platform/web.env
 
     ports:
-      - "${PORT:-3090}:3090"
+      - "${WEB_HOST_PORT:-3090}:3090"
 
 volumes:
   pgdata:
