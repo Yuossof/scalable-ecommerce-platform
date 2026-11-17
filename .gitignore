@@ -1,0 +1,32 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# JavaScript dependencies and build output
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Go build output
+**/bin/
+*.exe
+*.test
+*.out
+
+# Logs and local tooling
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Secrets
+secrets/
+**/.env
+**/.env.*
+!.env.example

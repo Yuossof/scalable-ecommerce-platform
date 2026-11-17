@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+@theme {
+  /* ========================= */
+  /* ===== Brand Palette ===== */
+  /* ========================= */
+
+  --brand-900: #0f172a; /* slate-900 */
+  --brand-800: #1e293b; /* slate-800 */
+  --brand-700: #334155; /* slate-700 */
+  --brand-600: #475569; /* slate-600 */
+  --brand-500: #64748b; /* slate-500 */
+
+  --accent-600: #ea580c; /* orange-600 */
+  --accent-500: #f97316; /* orange-500 */
+  --accent-300: #fdba74; /* orange-300 */
+  --accent-50: #fff7ed; /* orange-50 */
+
+  /* ========================= */
+  /* ===== Semantic Tokens ==== */
+  /* ========================= */
+
+  --color-primary: var(--brand-800);
+  --color-primary-strong: var(--brand-900);
+  --color-primary-hover: var(--brand-700); /* slate-800 */
+  --color-primary-light: var(--brand-700); /* slate-700 */
+
+  --color-accent: var(--accent-500); /* orange-500 */
+  --color-accent-strong: var(--accent-600); /* orange-600 */
+  --color-accent-hover: var(--accent-600); /* orange-600 */
+  --color-accent-light: var(--accent-300); /* orange-300 */
+
+  --color-bg-primary: #ffffff; /* white */
+  --color-bg-secondary: #f8fafc; /* slate-50 */
+  --color-border-primary: #e2e8f0; /* slate-200 */
+
+  --color-text-primary: var(--brand-900); /* slate-900 */
+  --color-text-secondary: var(--brand-600); /* slate-600 */
+  --color-text-muted: var(--brand-500); /* slate-500 */
+
+  --color-border-secondary: #cbd5e1; /* slate-300 */
+  --color-border-tertiary: #f1f5f9; /* slate-100 */
+  --color-border-hover: var(--accent-500); /* orange-500 */
+
+  --color-text-subtle: #94a3b8; /* slate-400 */
+  --color-text-faint: #cbd5e1; /* slate-300 */
+
+  --color-bg-overlay: #f8fafc; /* slate-50 */
+  --color-overlay-dark: rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Dark Mode ===== */
+
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    @apply bg-slate-900 text-white;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 180ms ease-out;
+}

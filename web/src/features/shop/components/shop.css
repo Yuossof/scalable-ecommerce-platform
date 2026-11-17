@@ -1,0 +1,81 @@
+/* shop.css */
+
+.animate-slide-left {
+    animation: slide-left 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.animate-slide-right {
+    animation: slide-right 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.animate-fade-up {
+    animation: fade-up 0.8s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+.animate-marquee {
+    animation: marquee 20s linear infinite;
+}
+
+@keyframes slide-left {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes slide-right {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes fade-up {
+    0% { 
+        opacity: 0; 
+        transform: translateY(80px); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+
+
+
+/* product-grid.css */
+.product-grid {
+  display: grid;
+  gap: 1.5rem; /* gap-6 */
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/* Mobile: 2 cards side-by-side minimum */
+@media (max-width: 639px) {
+  .product-grid {
+    --card-min: 140px;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    --card-min: 180px;
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    --card-min: 200px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    --card-min: 260px;
+  }
+}
