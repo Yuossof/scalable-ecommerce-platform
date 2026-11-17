@@ -4,7 +4,7 @@ services:
     container_name: ecommerce-postgres
     restart: unless-stopped
     env_file:
-      - ./secrets/postgres.env
+      - /home/youssof/secrets/scalable-ecommerce-platform/postgres.env
 
     ports:
       - "5433:5432"
@@ -78,7 +78,7 @@ services:
     container_name: ecommerce-api
     restart: unless-stopped
     env_file:
-      - ./secrets/api.env
+      - /home/youssof/secrets/scalable-ecommerce-platform/api.env
 
     environment:
       NOTIFICATION_SERVICE_URL: notification:50051
@@ -141,7 +141,7 @@ services:
     container_name: ecommerce-web
     restart: unless-stopped
     env_file:
-      - ./secrets/web.env
+      - /home/youssof/secrets/scalable-ecommerce-platform/web.env
 
     ports:
       - "${PORT:-3090}:3090"
