@@ -46,8 +46,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
     ports:
-      - "${RABBITMQ_AMQP_HOST_PORT:-5672}:5672"
-      - "${RABBITMQ_MANAGEMENT_HOST_PORT:-15672}:15672"
+      - "15672:15672"
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     healthcheck:
