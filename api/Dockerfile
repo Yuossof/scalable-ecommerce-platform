@@ -32,7 +32,7 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/proto ./proto
+# COPY --from=builder /app/proto ./proto
 
 EXPOSE 8090
 
