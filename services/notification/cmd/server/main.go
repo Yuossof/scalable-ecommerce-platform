@@ -1,42 +1,54 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"log"
-	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
-	pb "github.com/Yuossof/notification-service/gen/notification"
-	notification "github.com/Yuossof/notification-service/internal/notification"
 	"github.com/joho/godotenv"
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/resend/resend-go/v4"
 
-	"google.golang.org/grpc"
+	"github.com/Yuossof/notification-service/internal/notification"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
+	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Fatal(err)
 	}
 
-	lis, err := net.Listen("tcp", ":50051")
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		log.Fatal("RABBITMQ_URL is required")
+	}
+	resendAPIKey := os.Getenv("RESEND_API_KEY")
+	if resendAPIKey == "" {
+		log.Fatal("RESEND_API_KEY is required")
+	}
+
+	conn, err := amqp091.Dial(rabbitMQURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to connect to RabbitMQ:", err)
 	}
+	defer conn.Close()
 
-	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
+	client := resend.NewClient(resendAPIKey)
 
-	grpcServer := grpc.NewServer()
-
-	notificationServer := notification.NewServer(client)
-	go notificationServer.Loop()
-	pb.RegisterNotificationServiceServer(
-		grpcServer,
-		notificationServer,
-	)
-
-	log.Println("gRPC server listening on :50051")
-
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatal(err)
+	worker, err := notification.NewNotificationWorker(conn, client)
+	if err != nil {
+		log.Fatal("Failed to start notification worker:", err)
 	}
+	defer worker.Close()
+
+	worker.StartWorker()
+	log.Printf("Notification worker listening on queue %q", notification.QueueName)
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	<-ctx.Done()
+
+	log.Println("Shutting down notification worker...")
 }

@@ -2,18 +2,25 @@ import Stripe from "stripe";
 import { stripeClient } from "../../lib/stripe/stripe.lib.js";
 import { PaymentsRepository } from "./payments.repository.js";
 import { PaymentStatus } from "./payments.types.js";
-import { notifyUser } from "../../grpc/notifications/notification.client.js";
+import { AuthRepository } from "../auth/auth.repository.js";
+import {
+  NotificationMessage,
+  publishNotificationMessage,
+} from "../notification/notification.publisher.js";
 
 export class PaymentsService {
     private paymentRepository: PaymentsRepository
-    private notificationSender: typeof notifyUser
+    private authRepository: AuthRepository
+    private notificationPublisher: (message: NotificationMessage) => Promise<void>
+
     constructor(
         paymentRepository: PaymentsRepository,
-        notificationSender: typeof notifyUser = notifyUser
-
+        authRepository: AuthRepository,
+        notificationPublisher: (message: NotificationMessage) => Promise<void> = publishNotificationMessage,
     ) {
         this.paymentRepository = paymentRepository
-        this.notificationSender = notificationSender
+        this.authRepository = authRepository
+        this.notificationPublisher = notificationPublisher
     }
 
     async createPaymentIntent(orderId: string, amount: number, userId: string) {
@@ -44,22 +51,32 @@ export class PaymentsService {
     async handlePaymentStatus(status: PaymentStatus, paymentIntent: Stripe.PaymentIntent) {
         const orderId = paymentIntent.metadata.order_id
         const userId = paymentIntent.metadata.user_id
-        
+
         await this.paymentRepository.updatePaymentStatus(status, orderId)
 
         void Promise.resolve()
-            .then(() => this.notificationSender({
-                userId: userId,
-                title: "Order Confirmed",
-                body: "Your order has been confirmed",
-            }))
-            .then((result) => {
-                if (!result.success) {
-                    console.error("Notification service rejected order confirmation", {
+            .then(async () => {
+                if (!userId) {
+                    console.error("Cannot send order confirmation notification: missing userId in payment metadata", {
                         orderId: orderId,
-                        message: result.message,
                     });
+                    return;
                 }
+
+                const user = await this.authRepository.findByID(userId);
+                if (!user?.email) {
+                    console.error("Cannot send order confirmation notification: user email not found", {
+                        orderId: orderId,
+                        userId: userId,
+                    });
+                    return;
+                }
+
+                await this.notificationPublisher({
+                    email: user.email,
+                    subject: "Order Confirmed",
+                    body: "Your order has been confirmed",
+                });
             })
             .catch((error: unknown) => {
                 console.error("Failed to send order confirmation notification", {

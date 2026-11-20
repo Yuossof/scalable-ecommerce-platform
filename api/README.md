@@ -257,25 +257,22 @@ The `addresses` table is created by:
 migrations/10_create_addresses_table.sql
 ```
 
-## Notification Service (gRPC)
+## Notification Service (RabbitMQ)
 
 Order confirmation emails are delegated to the Go notification microservice in
-[`../services/notification`](../services/notification). The API is the gRPC
-client:
+[`../services/notification`](../services/notification) through RabbitMQ:
 
-- The contract lives at [`proto/notification.proto`](./proto/notification.proto)
-  (mirrored in `services/notification/proto/notification.proto`).
-- [`src/grpc/notifications/notification.client.ts`](./src/grpc/notifications/notification.client.ts)
-  loads the proto and connects to `NOTIFICATION_SERVICE_URL` (defaults to
-  `localhost:50051`) with a 5-second deadline. Docker Compose sets it to
-  `notification:50051`.
+- [`src/modules/notification/notification.publisher.ts`](./src/modules/notification/notification.publisher.ts)
+  publishes durable JSON messages with `email`, `subject`, and `body` to the
+  `notifications` queue.
 - [`src/modules/payment/payments.service.ts`](./src/modules/payment/payments.service.ts)
-  calls `notifyUser({ userId, title, body })` after a payment status update.
+  resolves the customer email from `user_id` and publishes the notification
+  after a payment status update.
 
-Notification delivery is best-effort: if the service is unavailable the API logs
+Notification delivery is best-effort: if RabbitMQ is unavailable the API logs
 the failure and still returns the payment response, so email problems never
-block an order. Outside Docker Compose, start the notification service
-(`go run ./cmd/server`) before exercising the payment flow locally.
+block an order. Outside Docker Compose, start RabbitMQ and the notification
+service (`go run ./cmd/server`) before exercising the payment flow locally.
 
 ## Installation and Running
 

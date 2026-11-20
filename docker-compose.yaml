@@ -64,8 +64,11 @@ services:
     restart: unless-stopped
     env_file:
       - /home/youssof/secrets/scalable-ecommerce-platform/notification.env
-    ports:
-      - "${NOTIFICATION_HOST_PORT:-50051}:50051"
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   api:
     build:
@@ -76,9 +79,6 @@ services:
     restart: unless-stopped
     env_file:
       - /home/youssof/secrets/scalable-ecommerce-platform/api.env
-
-    environment:
-      NOTIFICATION_SERVICE_URL: notification:50051
 
     # environment:
     #   NODE_ENV: ${NODE_ENV:-production}

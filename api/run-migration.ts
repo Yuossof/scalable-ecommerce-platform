@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export async function migrate() {
-    const folderPath = path.join(__dirname, './migrations');
+    const folderPath = path.join(__dirname, '../migrations');
 
     const files = (await fs.readdir(folderPath))
         .filter((file) => path.extname(file).toLowerCase() === ".sql")

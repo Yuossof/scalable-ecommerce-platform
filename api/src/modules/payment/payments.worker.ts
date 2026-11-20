@@ -3,10 +3,12 @@ import { rabbitMQ } from "../../config/rabbitmq.js"
 import { PaymentsRepository } from "./payments.repository.js"
 import { PaymentsService } from "./payments.service.js"
 import { InventoryRepository } from "../products/inventory.repository.js";
+import { AuthRepository } from "../auth/auth.repository.js";
 
 const inventoryRepo = new InventoryRepository()
 const paymentsRepo = new PaymentsRepository(inventoryRepo)
-const paymentsService = new PaymentsService(paymentsRepo)
+const authRepository = new AuthRepository()
+const paymentsService = new PaymentsService(paymentsRepo, authRepository)
 
 export async function startPaymentWorker() {
     const channel = await rabbitMQ.createChannel()

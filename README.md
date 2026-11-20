@@ -6,7 +6,7 @@ A full-stack e-commerce monorepo composed of three projects:
 | --- | --- | --- |
 | **API** | [`api/`](./api) | Express + TypeScript REST API. Owns the database, auth, catalog, cart, orders, Stripe payments and webhooks. |
 | **Web** | [`web/`](./web) | Next.js 16 storefront (App Router) that consumes the API and handles Stripe checkout. |
-| **Notification Service** | [`services/notification/`](./services/notification) | Go gRPC microservice that sends transactional email via Resend. Called by the API. |
+| **Notification Service** | [`services/notification/`](./services/notification) | Go microservice that consumes RabbitMQ messages and sends transactional email via Resend. |
 
 Each project has its own README with setup, scripts and internals:
 
@@ -22,9 +22,9 @@ Each project has its own README with setup, scripts and internals:
                     └────────────┬────────────┘
                                  │ REST /api (cookies, CORS)
                                  ▼
-   Stripe ──webhook──▶ ┌─────────────────────────┐      gRPC :50051      ┌──────────────────────────┐
+   Stripe ──webhook──▶ ┌─────────────────────────┐   RabbitMQ queues     ┌──────────────────────────┐
                        │   api/  (Express :8090) │ ───────────────────▶ │ services/notification/   │
-                       └────────────┬────────────┘                      │ (Go, sends email/Resend) │
+                       └────────────┬────────────┘  notifications queue  │ (Go, sends email/Resend) │
                                     │                                   └──────────────────────────┘
               ┌─────────────────────┼─────────────────────┐
               ▼                     ▼                     ▼
@@ -34,9 +34,9 @@ Each project has its own README with setup, scripts and internals:
 
 - The **web** app talks only to the **api** over REST, authenticating with
   HTTP-only cookies. It never talks to the notification service directly.
-- The **api** is the gRPC **client** of the notification service; it calls it
-  best-effort after payment status updates so email failures never block an
-  order.
+- The **api** publishes notification events to RabbitMQ, which the notification
+  service consumes. Publishing is best-effort after payment status updates so
+  email failures never block an order.
 - PostgreSQL, Redis and RabbitMQ are supporting infrastructure for the API and
   are started by the root `docker-compose.yaml`, together with the API and
   notification service.
@@ -47,7 +47,6 @@ Each project has its own README with setup, scripts and internals:
 | --- | --- |
 | Web (Next.js) | `3000` |
 | API (Express) | `8090` |
-| Notification service (gRPC) | `50051` |
 | PostgreSQL | `5433` |
 | Redis | `6379` |
 | RabbitMQ | `5672` (AMQP), `15672` (management UI) |
@@ -77,13 +76,14 @@ Docker (`npm install && npm run db:migrate && npm run dev`).
 ### 2. Notification service
 
 When using the root Docker Compose file, set `RESEND_API_KEY` in
-`secrets/notification.env`; Compose starts the notification service and connects
-the API to it. For local development outside Compose:
+`secrets/notification.env`; Compose starts the notification service, connects it
+to RabbitMQ, and the API publishes to the `notifications` queue. For local
+development outside Compose:
 
 ```bash
 cd services/notification
-# create .env with RESEND_API_KEY=...
-go run ./cmd/server           # gRPC on :50051
+cp .env.example .env          # set RESEND_API_KEY and RABBITMQ_URL
+go run ./cmd/server           # consumes the "notifications" queue
 ```
 
 ### 3. Web
@@ -101,34 +101,25 @@ npm run dev                   # http://localhost:3000
 E-commerce/
 ├── api/                        # Express + TypeScript REST API
 │   ├── migrations/             # SQL migrations
-│   ├── proto/                  # gRPC contract (client copy)
 │   ├── src/                    # app, modules, config, middleware, lib
 │   ├── docker-compose.yaml     # Postgres, Redis, RabbitMQ, API
 │   └── Dockerfile
 ├── web/                        # Next.js storefront
 │   └── src/                    # app routes, features, shared, store
 ├── services/
-│   └── notification/           # Go gRPC email service
+│   └── notification/           # Go email consumer
 │       ├── cmd/server/         # entry point
-│       ├── internal/           # service implementation
-│       ├── proto/              # gRPC contract (server copy)
-│       └── gen/                # generated stubs
+│       └── internal/           # queue consumer + email sender
 └── README.md                   # this file
 ```
 
 ## Shared Contract
 
-The API and the notification service share the gRPC contract in
-`notification.proto`, which is duplicated in both projects:
-
-```text
-api/proto/notification.proto
-services/notification/proto/notification.proto
-```
-
-Keep the two copies in sync when the contract changes. See the
-[Notification Service README](./services/notification/README.md#regenerating-the-grpc-stubs)
-for regenerating the Go stubs.
+The API and the notification service communicate through the durable RabbitMQ
+`notifications` queue. Messages are JSON with `email`, `subject`, and `body`
+fields; see the
+[Notification Service README](./services/notification/README.md#message-format)
+for details.
 
 ## Security Notes
 

@@ -1,51 +1,51 @@
 # Notification Service
 
-Go gRPC microservice that sends transactional email for the E-Commerce
-platform. It is called by the [API](../api) over gRPC and delivers messages with
+Go microservice that sends transactional email for the E-Commerce platform. It
+consumes messages from RabbitMQ and delivers them with
 [Resend](https://resend.com).
 
 ## Relationship to the API
 
-The notification service is a **downstream dependency of the API**, not of the
-web client. The flow is:
+The notification service is a **downstream consumer of the API**, not of the web
+client. The flow is:
 
 ```text
-Stripe webhook ──▶ API (payments.service.ts)
-                        │  gRPC SendNotification (user_id, title, body)
-                        ▼
-              Notification Service (:50051)
-                        │  Resend Emails.Send
-                        ▼
-                    Customer inbox
+Stripe webhook ──▶ API ──▶ RabbitMQ ──▶ Notification Service ──▶ Resend ──▶ Customer inbox
+   payment_queue     notifications queue         (Go worker)
 ```
 
-- The API is the **gRPC client**. It loads the contract from
-  `api/proto/notification.proto` and connects to `localhost:50051` by default
-  (or `NOTIFICATION_SERVICE_URL` when configured) in
-  [`api/src/grpc/notifications/notification.client.ts`](../api/src/grpc/notifications/notification.client.ts)
-  with a 5-second deadline. Docker Compose sets the URL to
-  `notification:50051`.
-- The API calls `notifyUser(...)` from
-  [`api/src/modules/payment/payments.service.ts`](../api/src/modules/payment/payments.service.ts)
-  after a payment status update (e.g. to send an "Order Confirmed" email).
-- Notification failures are **best-effort**: the API logs the error and still
-  returns a successful payment response, so email delivery never blocks an
-  order. See `orders.service.test.ts` for the fallback behaviour.
+- The Stripe webhook publishes the payment intent to the `payment_queue` queue in
+  RabbitMQ.
+- The API's payment worker updates the order/payment status and the API resolves
+  the customer email, then publishes a notification event to the `notifications`
+  queue via
+  [`api/src/modules/notification/notification.publisher.ts`](../api/src/modules/notification/notification.publisher.ts).
+- This service consumes the `notifications` queue in
+  [`internal/notification/server.go`](./internal/notification/server.go) and sends
+  the email through Resend.
+- Notification delivery is **best-effort** from the API's perspective: a publish
+  failure is logged and never blocks the payment response.
 
-Because the two projects share the same `.proto` contract, the file exists in
-both repositories:
+## Message format
 
-```text
-api/proto/notification.proto
-services/notification/proto/notification.proto
+Messages published to the `notifications` queue are JSON objects:
+
+```json
+{
+  "email": "customer@example.com",
+  "subject": "Order Confirmed",
+  "body": "<p>Your order has been confirmed</p>"
+}
 ```
 
-Keep them in sync when the contract changes.
+The queue is durable and messages are published as persistent. The worker uses a
+prefetch of 5 and acknowledges messages only after a successful send. Malformed
+or unsendable messages are rejected without requeue and logged.
 
 ## Technology Stack
 
 - Go 1.27
-- gRPC (`google.golang.org/grpc`) + Protocol Buffers
+- RabbitMQ (`github.com/rabbitmq/amqp091-go`)
 - Resend Go SDK (`github.com/resend/resend-go/v4`)
 - `godotenv` for local environment loading
 
@@ -55,43 +55,13 @@ Keep them in sync when the contract changes.
 services/notification/
 ├── cmd/
 │   └── server/
-│       └── main.go                     # Entry point: loads .env, starts gRPC on :50051
+│       └── main.go                  # Entry point: loads .env, connects to RabbitMQ, starts the worker
 ├── internal/
 │   └── notification/
-│       └── server.go                   # NotificationService implementation + mail worker
-├── proto/
-│   └── notification.proto              # gRPC contract (mirror of api/proto)
-├── gen/
-│   └── notification/                   # Generated protobuf + gRPC stubs (do not edit)
+│       └── server.go                # Queue consumer + Resend mail sender
 ├── go.mod
 └── go.sum
 ```
-
-## Proto Contract
-
-Defined in [`proto/notification.proto`](./proto/notification.proto):
-
-```proto
-service NotificationService {
-  rpc SendNotification (SendNotificationRequest)
-      returns (SendNotificationResponse);
-}
-
-message SendNotificationRequest {
-  string user_id = 1;
-  string title = 2;
-  string body = 3;
-}
-
-message SendNotificationResponse {
-  bool success = 1;
-  string message = 2;
-}
-```
-
-`SendNotification` enqueues the message on a buffered channel (capacity 100) and
-returns immediately; a background worker (`Loop`) consumes the channel and sends
-the email, so gRPC callers are never blocked on the Resend API.
 
 ## Getting Started
 
@@ -101,59 +71,35 @@ Fetch dependencies:
 go mod download
 ```
 
-Create `.env` (see [Configuration](#configuration)):
+Create `.env` from the example and fill in the secrets:
 
 ```bash
-RESEND_API_KEY=re_...
+cp .env.example .env
 ```
 
-Run the server:
+Run the worker:
 
 ```bash
 go run ./cmd/server
 ```
 
-The server listens for gRPC on `:50051` and logs:
-
-```text
-gRPC server listening on :50051
-```
-
-Outside Docker Compose, the API connects to `localhost:50051` by default, so
-start this service before exercising the payment/notification flow.
+The process logs `Notification worker listening on queue "notifications"` and
+stays running until SIGINT/SIGTERM.
 
 ## Configuration
 
 | Variable | Required | Description |
 | --- | --- | --- |
+| `RABBITMQ_URL` | Yes | AMQP connection URL, e.g. `amqp://guest:guest@localhost:5672`. Compose sets it to the internal `rabbitmq` host. |
 | `RESEND_API_KEY` | Yes | Resend API key used to send emails. |
 
-`godotenv` loads these from a local `.env` file. In production, inject them as
-real environment variables.
+`godotenv` loads these from a local `.env` file. In production, inject real
+environment variables (Docker Compose uses an env file).
 
-## Regenerating the gRPC Stubs
+## Notes
 
-The code in `gen/notification` is generated from `proto/notification.proto`.
-After changing the contract, regenerate both this service and the API's copy:
-
-```bash
-protoc \
-  --go_out=./gen --go_opt=paths=source_relative \
-  --go-grpc_out=./gen --go-grpc_opt=paths=source_relative \
-  --proto_path=./proto \
-  proto/notification.proto
-```
-
-## Current Limitations
-
-These are known rough edges in the current implementation, not intended
-behaviour:
-
-- The recipient address is hardcoded (`youssofwr@gmail.com`) instead of being
-  resolved from `user_id`.
-- The email subject/body are hardcoded ("Hello from Golang" /
-  `<strong>hello world</strong>`); the `title` and `body` from the request are
-  only logged.
-- There is no `.gitignore`, so a local `.env` with a live `RESEND_API_KEY` can be
-  committed by accident. Add a `.gitignore` that excludes `.env` before
-  committing.
+- The sender address is currently `Acme <onboarding@resend.dev>`; replace it with
+  a verified Resend domain address for production use.
+- There is no dead-letter queue: messages that fail to send are dropped after a
+  single attempt and logged. Add a DLQ/retry policy before relying on this for
+  critical delivery guarantees.

@@ -7,6 +7,7 @@ import { isAuthenticated } from "../../middleware/auth/authentication.middleware
 import { PaymentsService } from "../payment/payments.service.js";
 import { PaymentsRepository } from "../payment/payments.repository.js";
 import { InventoryRepository } from "../products/inventory.repository.js";
+import { AuthRepository } from "../auth/auth.repository.js";
 
 const router = Router()
 
@@ -14,7 +15,8 @@ const orderRepository = new OrdersRepository()
 const cartItemsRepository = new CartItemsRepository()
 const inventoryRepo = new InventoryRepository()
 const paymentsRepo = new PaymentsRepository(inventoryRepo)
-const paymentsService = new PaymentsService(paymentsRepo)
+const authRepository = new AuthRepository()
+const paymentsService = new PaymentsService(paymentsRepo, authRepository)
 const orderService = new OrdersService(orderRepository, cartItemsRepository, paymentsService)
 const orderController = new OrdersController(orderService)
 
