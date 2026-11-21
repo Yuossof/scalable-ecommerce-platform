@@ -4,27 +4,25 @@ Go microservice that sends transactional email for the E-Commerce platform. It
 consumes messages from RabbitMQ and delivers them with
 [Resend](https://resend.com).
 
-## Relationship to the API
+## Relationship to the payment service
 
-The notification service is a **downstream consumer of the API**, not of the web
-client. The flow is:
+The notification service is a **downstream consumer of the Go payment service**,
+not of the web client. The flow is:
 
 ```text
-Stripe webhook ──▶ API ──▶ RabbitMQ ──▶ Notification Service ──▶ Resend ──▶ Customer inbox
-   payment_queue     notifications queue         (Go worker)
+Stripe webhook ──▶ API ──▶ payment_queue ──▶ Payment Service ──▶ notifications queue ──▶ Notification Service ──▶ Resend ──▶ Customer inbox
 ```
 
-- The Stripe webhook publishes the payment intent to the `payment_queue` queue in
-  RabbitMQ.
-- The API's payment worker updates the order/payment status and the API resolves
-  the customer email, then publishes a notification event to the `notifications`
-  queue via
-  [`api/src/modules/notification/notification.publisher.ts`](../api/src/modules/notification/notification.publisher.ts).
+- The API verifies the Stripe webhook and publishes the PaymentIntent and status
+  to the durable `payment_queue` queue.
+- The [payment service](../services/payment) consumes that queue, applies the
+  payment/order/inventory changes, resolves the customer email and publishes a
+  notification event to the `notifications` queue.
 - This service consumes the `notifications` queue in
   [`internal/notification/server.go`](./internal/notification/server.go) and sends
   the email through Resend.
-- Notification delivery is **best-effort** from the API's perspective: a publish
-  failure is logged and never blocks the payment response.
+- Notification delivery is **best-effort** from the payment service's
+  perspective: a publish failure is logged and never blocks the payment event.
 
 ## Message format
 

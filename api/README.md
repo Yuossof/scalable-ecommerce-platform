@@ -184,11 +184,13 @@ another user cannot be read, updated, or deleted through these endpoints.
 
 | Method | Endpoint | Authentication |
 | --- | --- | --- |
-| `POST` | `/api/webhooks/stripe` | Stripe signature required |
+| `POST` | `/api/webhooks/payments` | Stripe signature required |
 
 Stripe sends the request signature in the `stripe-signature` header. The
-endpoint verifies the raw request body using `STRIPE_WEBHOOK_SECRET` before
-updating the related payment and order status.
+endpoint verifies the raw request body using `STRIPE_WEBHOOK_SECRET` and then
+publishes the PaymentIntent and its status to the durable `payment_queue`. The
+Go [payment service](../services/payment) consumes that queue and owns all
+payment, order and inventory updates.
 
 ## Address Fields
 
@@ -257,22 +259,27 @@ The `addresses` table is created by:
 migrations/10_create_addresses_table.sql
 ```
 
-## Notification Service (RabbitMQ)
+## Payment and Notification Services (RabbitMQ)
 
-Order confirmation emails are delegated to the Go notification microservice in
-[`../services/notification`](../services/notification) through RabbitMQ:
+Payment processing is delegated to two Go microservices; the API only verifies
+Stripe webhook signatures and forwards work over RabbitMQ:
 
-- [`src/modules/notification/notification.publisher.ts`](./src/modules/notification/notification.publisher.ts)
-  publishes durable JSON messages with `email`, `subject`, and `body` to the
-  `notifications` queue.
 - [`src/modules/payment/payments.service.ts`](./src/modules/payment/payments.service.ts)
-  resolves the customer email from `user_id` and publishes the notification
-  after a payment status update.
+  is a thin RPC client. On order creation it publishes `{ order_id, user_id,
+  amount }` to the durable `payment.create` queue and waits for the Go payment
+  service to reply with the payment row and Stripe `client_secret`.
+- The webhook handler publishes `{ paymentIntent, status, event_id, event_type }`
+  to `payment_queue`. The Go
+  [payment service](../services/payment) creates PaymentIntents, applies status
+  and inventory changes in a transaction, and publishes customer emails.
+- The Go [notification service](../services/notification) consumes the durable
+  `notifications` queue, whose messages contain `email`, `subject`, and `body`.
 
-Notification delivery is best-effort: if RabbitMQ is unavailable the API logs
-the failure and still returns the payment response, so email problems never
-block an order. Outside Docker Compose, start RabbitMQ and the notification
-service (`go run ./cmd/server`) before exercising the payment flow locally.
+RPC calls time out after 15 seconds and surface as a `504`/`502` API error.
+Outside Docker Compose, start RabbitMQ plus both Go services before exercising
+the payment flow locally. See the
+[Payment Service README](../services/payment/README.md#queues) for the full
+message contracts.
 
 ## Installation and Running
 
@@ -294,20 +301,22 @@ variables.
 
 ## Docker Compose
 
-The Compose stack runs the API, PostgreSQL, Redis, and RabbitMQ together.
-Copy `.env.example` to `.env`, replace the placeholder secrets, then run:
+The root Compose stack runs the API, the Go payment and notification services,
+PostgreSQL, Redis, and RabbitMQ together. Fill in the secrets in `secrets/`,
+then run from the repository root:
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 The API is available at `http://localhost:8090`, and the RabbitMQ management
-console is available at `http://localhost:15672`.
+console is available at `http://localhost:15673`.
 
-The API container waits for PostgreSQL, Redis, and RabbitMQ health checks,
-applies migrations, and then starts the compiled server. Within the Compose
-network, the services are addressed as `postgres`, `redis`, and `rabbitmq`;
-the host-facing ports are only for local development.
+The API container waits for PostgreSQL, Redis, RabbitMQ, the payment service and
+the notification service, applies migrations, and then starts the compiled
+server. Within the Compose network, the services are addressed as `postgres`,
+`redis`, `rabbitmq`, `payment`, and `notification`; the host-facing ports are
+only for local development.
 
 Start the development server:
 

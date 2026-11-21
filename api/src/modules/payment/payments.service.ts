@@ -1,88 +1,142 @@
-import Stripe from "stripe";
-import { stripeClient } from "../../lib/stripe/stripe.lib.js";
-import { PaymentsRepository } from "./payments.repository.js";
-import { PaymentStatus } from "./payments.types.js";
-import { AuthRepository } from "../auth/auth.repository.js";
-import {
-  NotificationMessage,
-  publishNotificationMessage,
-} from "../notification/notification.publisher.js";
+import { randomUUID } from "node:crypto";
+import type { Channel, Message } from "amqplib";
+import { BaseError } from "../../common/errors/base.error.js";
+import { rabbitMQ } from "../../config/rabbitmq.js";
+import type {
+  CreatePaymentRequest,
+  CreatePaymentResponse,
+  PaymentRecord,
+} from "./payments.types.js";
 
+export const PAYMENT_CREATE_QUEUE = "payment.create";
+
+/** Minimal broker surface needed by the service (easy to fake in tests). */
+export interface ChannelProvider {
+  createChannel(): Promise<Channel>;
+}
+
+/**
+ * Thin client for the Go payment service.
+ *
+ * The TypeScript API no longer talks to Stripe, writes payment rows, or
+ * updates inventory. It sends a request to the durable `payment.create` RPC
+ * queue and waits for the reply on a temporary, exclusive reply queue.
+ */
 export class PaymentsService {
-    private paymentRepository: PaymentsRepository
-    private authRepository: AuthRepository
-    private notificationPublisher: (message: NotificationMessage) => Promise<void>
+  constructor(
+    private readonly broker: ChannelProvider = rabbitMQ,
+    private readonly timeoutMs: number = 15_000,
+  ) {}
 
-    constructor(
-        paymentRepository: PaymentsRepository,
-        authRepository: AuthRepository,
-        notificationPublisher: (message: NotificationMessage) => Promise<void> = publishNotificationMessage,
-    ) {
-        this.paymentRepository = paymentRepository
-        this.authRepository = authRepository
-        this.notificationPublisher = notificationPublisher
-    }
+  async createPaymentIntent(
+    orderId: string,
+    amount: number,
+    userId: string,
+  ): Promise<{ payment: PaymentRecord; clientSecret: string }> {
+    const channel = await this.broker.createChannel();
 
-    async createPaymentIntent(orderId: string, amount: number, userId: string) {
-        const paymentIntent = await stripeClient.paymentIntents.create({
-            amount: Math.round(amount * 100),
-            currency: 'usd',
-            metadata: {
-                order_id: orderId,
-                user_id: userId
-            }
-        })
+    try {
+      await channel.assertQueue(PAYMENT_CREATE_QUEUE, { durable: true });
+      const replyQueue = await channel.assertQueue("", {
+        exclusive: true,
+        autoDelete: true,
+      });
+      const correlationId = randomUUID();
 
-        const payment = await this.paymentRepository.createPayment({
-            order_id: orderId,
-            provider: 'stripe',
-            transaction_id: paymentIntent.id,
-            amount: amount,
-            status: 'pending',
-        });
+      const response = await new Promise<CreatePaymentResponse>((resolve, reject) => {
+        let settled = false;
+        let timer: NodeJS.Timeout | undefined;
 
-        return {
-            payment,
-            clientSecret: paymentIntent.client_secret,
+        const settle = (action: () => void) => {
+          if (settled) return;
+          settled = true;
+          if (timer) clearTimeout(timer);
+          action();
         };
+
+        timer = setTimeout(() => {
+          settle(() =>
+            reject(
+              new BaseError(
+                "PaymentServiceTimeout",
+                504,
+                true,
+                "Payment service did not respond in time",
+              ),
+            ),
+          );
+        }, this.timeoutMs);
+
+        const handleReply = (message: Message | null) => {
+          if (!message || message.properties.correlationId !== correlationId) {
+            return;
+          }
+
+          let parsed: CreatePaymentResponse;
+          try {
+            parsed = JSON.parse(message.content.toString("utf8")) as CreatePaymentResponse;
+          } catch (error) {
+            settle(() => reject(error));
+            return;
+          }
+
+          settle(() => {
+            if (parsed.ok && parsed.data) {
+              resolve(parsed);
+              return;
+            }
+            reject(
+              new BaseError(
+                "PaymentServiceError",
+                502,
+                true,
+                parsed.error?.message ?? "Payment service rejected the request",
+              ),
+            );
+          });
+        };
+
+        void channel
+          .consume(replyQueue.queue, handleReply, { noAck: true })
+          .then(() => {
+            const request: CreatePaymentRequest = {
+              order_id: orderId,
+              user_id: userId,
+              amount,
+            };
+            channel.sendToQueue(
+              PAYMENT_CREATE_QUEUE,
+              Buffer.from(JSON.stringify(request), "utf8"),
+              {
+                correlationId,
+                replyTo: replyQueue.queue,
+                persistent: true,
+                contentType: "application/json",
+              },
+            );
+          })
+          .catch((error: unknown) => settle(() => reject(error)));
+      });
+
+      if (!response.data) {
+        throw new BaseError(
+          "PaymentServiceError",
+          502,
+          true,
+          "Payment service returned an empty response",
+        );
+      }
+
+      return {
+        payment: response.data.payment,
+        clientSecret: response.data.client_secret,
+      };
+    } finally {
+      try {
+        await channel.close();
+      } catch {
+        // The reply queue is exclusive to this channel; closing is best effort.
+      }
     }
-
-
-    async handlePaymentStatus(status: PaymentStatus, paymentIntent: Stripe.PaymentIntent) {
-        const orderId = paymentIntent.metadata.order_id
-        const userId = paymentIntent.metadata.user_id
-
-        await this.paymentRepository.updatePaymentStatus(status, orderId)
-
-        void Promise.resolve()
-            .then(async () => {
-                if (!userId) {
-                    console.error("Cannot send order confirmation notification: missing userId in payment metadata", {
-                        orderId: orderId,
-                    });
-                    return;
-                }
-
-                const user = await this.authRepository.findByID(userId);
-                if (!user?.email) {
-                    console.error("Cannot send order confirmation notification: user email not found", {
-                        orderId: orderId,
-                        userId: userId,
-                    });
-                    return;
-                }
-
-                await this.notificationPublisher({
-                    email: user.email,
-                    subject: "Order Confirmed",
-                    body: "Your order has been confirmed",
-                });
-            })
-            .catch((error: unknown) => {
-                console.error("Failed to send order confirmation notification", {
-                    orderId: orderId,
-                    error,
-                });
-            });
-    }
+  }
 }

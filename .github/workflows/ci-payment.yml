@@ -1,0 +1,49 @@
+name: Payment service workflow - Golang
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "services/payment/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/ci-payment.yml"
+  pull_request:
+    branches:
+      - main
+      - "release/**"
+    paths:
+      - "services/payment/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/ci-payment.yml"
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Checkout Environment
+        run: |
+          hostname
+          whoami
+          docker version
+
+      - name: Download dependencies
+        working-directory: ./services/payment
+        run: go mod download
+
+      - name: Test
+        working-directory: ./services/payment
+        run: go test ./...
+
+      - name: Build and Deploy
+        run: docker compose -f docker-compose.yaml up -d --build payment
+
+      - name: Check containers
+        run: docker compose -f docker-compose.yaml ps
+
+      - name: Show logs
+        run: docker compose -f docker-compose.yaml logs --tail=100 payment
