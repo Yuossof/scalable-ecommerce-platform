@@ -1,5 +1,6 @@
 name: API workflow - NodeJS
 on:
+  workflow_dispatch:
   push:
     branches:
       - main

@@ -1,6 +1,7 @@
 name: Payment service workflow - Golang
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
