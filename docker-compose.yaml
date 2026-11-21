@@ -6,8 +6,8 @@ services:
     env_file:
       - /home/youssof/secrets/scalable-ecommerce-platform/postgres.env
 
-    ports:
-      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    # ports:
+    #   - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - pgdata_v18:/var/lib/postgresql
     healthcheck:
