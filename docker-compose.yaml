@@ -4,7 +4,7 @@ services:
     container_name: ecommerce-postgres
     restart: unless-stopped
     env_file:
-      - /home/youssof/secrets/scalable-ecommerce-platform/postgres.env
+      - /home/azureuser/secrets/scalable-ecommerce-platform/postgres.env
 
     # ports:
     #   - "${POSTGRES_HOST_PORT:-5433}:5432"
@@ -62,7 +62,7 @@ services:
     container_name: ecommerce-notification
     restart: unless-stopped
     env_file:
-      - /home/youssof/secrets/scalable-ecommerce-platform/notification.env
+      - /home/azureuser/secrets/scalable-ecommerce-platform/notification.env
     environment:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672
     depends_on:
@@ -76,7 +76,7 @@ services:
     container_name: ecommerce-payment
     restart: unless-stopped
     env_file:
-      - /home/youssof/secrets/scalable-ecommerce-platform/api.env
+      - /home/azureuser/secrets/scalable-ecommerce-platform/api.env
     environment:
       # The secrets file may contain a host-local DATABASE_URL; build the DSN
       # from the DB_* variables so it resolves to the Compose network instead.
@@ -98,7 +98,7 @@ services:
     container_name: ecommerce-api
     restart: unless-stopped
     env_file:
-      - /home/youssof/secrets/scalable-ecommerce-platform/api.env
+      - /home/azureuser/secrets/scalable-ecommerce-platform/api.env
     environment:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@rabbitmq:5672
 
@@ -162,7 +162,7 @@ services:
     container_name: ecommerce-web
     restart: unless-stopped
     env_file:
-      - /home/youssof/secrets/scalable-ecommerce-platform/web.env
+      - /home/azureuser/secrets/scalable-ecommerce-platform/web.env
 
     ports:
       - "3090:3000"
