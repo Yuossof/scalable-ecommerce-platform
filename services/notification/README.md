@@ -4,6 +4,7 @@ Go microservice that sends transactional email for the E-Commerce platform. It
 consumes messages from RabbitMQ and delivers them with
 [Resend](https://resend.com).
 
+
 ## Relationship to the payment service
 
 The notification service is a **downstream consumer of the Go payment service**,

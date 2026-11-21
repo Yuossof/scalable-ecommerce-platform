@@ -2,6 +2,18 @@
 
 Backend API for the E-Commerce application.
 
+## Recent Updates
+
+**Updated: 2026-11-21**
+
+- Payment creation now uses a RabbitMQ RPC call to the Go payment service.
+- Stripe webhook events are verified by the API and forwarded through the
+  durable `payment_queue` queue.
+- Address data is scoped to the authenticated user, and catalog mutations now
+  require an administrator role.
+- Docker Compose startup waits for PostgreSQL, Redis, RabbitMQ, payment and
+  notification services before running migrations and starting the server.
+
 ## Technology Stack
 
 - Node.js
@@ -9,6 +21,8 @@ Backend API for the E-Commerce application.
 - Express
 - PostgreSQL
 - `postgres` SQL client
+- Redis for caching/session infrastructure
+- RabbitMQ for payment RPC and event delivery
 - JWT authentication stored in an `accessToken` cookie
 - Multer for product image uploads
 - Stripe for payment integration

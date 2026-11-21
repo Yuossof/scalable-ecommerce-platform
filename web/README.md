@@ -4,6 +4,19 @@ Customer-facing storefront for the E-Commerce platform. It is a Next.js App
 Router application that talks to the Express API in [`../api`](../api) and uses
 Stripe for checkout.
 
+## Recent Updates
+
+**Updated: 2026-11-21**
+
+- Checkout now uses the server-created Stripe PaymentIntent and client secret
+  returned by the order API.
+- Authentication uses HTTP-only cookies and refreshes failed requests with a
+  shared single-flight interceptor.
+- Address and order history flows are available for the authenticated
+  storefront.
+- Docker Compose publishes the web container on host port `3090`; local
+  `npm run dev` remains on port `3000`.
+
 ## Technology Stack
 
 - Next.js 16 (App Router, React Compiler enabled)

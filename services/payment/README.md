@@ -4,6 +4,7 @@ Owns all payment processing. The TypeScript API only verifies Stripe webhook
 signatures and forwards events; Stripe PaymentIntents, payment rows, order
 statuses, inventory updates and customer notifications are handled here.
 
+
 ## Flow
 
 ```text
