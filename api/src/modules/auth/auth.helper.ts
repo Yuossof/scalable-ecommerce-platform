@@ -17,14 +17,16 @@ export const setAuthCookies = async (
 
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: config.nodeEnv === "production",
+        secure: false,
+        // secure: config.nodeEnv === "production",
         sameSite: "lax",
         maxAge: 30 * 60 * 1000
     })
 
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: config.nodeEnv === "production",
+        secure: false,
+        // secure: config.nodeEnv === "production",
         sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     })
