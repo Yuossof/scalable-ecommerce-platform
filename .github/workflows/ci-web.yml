@@ -43,8 +43,9 @@ jobs:
           docker compose \
             --env-file /home/azureuser/secrets/scalable-ecommerce-platform/web.env \
             up -d --build --force-recreate web
-            - name: Check containers
-              run: docker compose ps
+
+      - name: Check containers
+        run: docker compose ps
       
       - name: Show logs
         run: docker compose logs --tail=100
