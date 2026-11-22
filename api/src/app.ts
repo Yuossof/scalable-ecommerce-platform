@@ -10,7 +10,7 @@ import routes from "./routes/index.js";
 const app = express();
 
 app.use(cors({
-    origin: [config.frontendUrl, "http://localhost:8080", "http://localhost:3090", "68.210.203.225:3090", "68.210.203.225:3000"],
+    origin: [config.frontendUrl, "http://localhost:8080", "http://localhost:3090", "http://68.210.203.225:3090", "http://68.210.203.225:3000"],
     credentials: true
 }));
 
