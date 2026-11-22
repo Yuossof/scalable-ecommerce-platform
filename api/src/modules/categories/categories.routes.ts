@@ -11,8 +11,8 @@ const categoriesRepository = new CategoriesRepository()
 const categoriesService = new CategoriesService(categoriesRepository)
 const categoriesController = new CategoriesController(categoriesService)
 
-router.post("/", isAuthenticated, requireRole("admin"), categoriesController.createCategory)
+router.post("/", isAuthenticated, requireRole("user"), categoriesController.createCategory)
 router.get("/", categoriesController.getCategories)
-router.put("/:id", isAuthenticated, requireRole("admin"), categoriesController.updateCategory)
+router.put("/:id", isAuthenticated, requireRole("user"), categoriesController.updateCategory)
 
 export default router

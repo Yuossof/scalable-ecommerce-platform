@@ -17,7 +17,7 @@ const productsController = new ProductsController(productsService)
 router.post(
     "/",
     isAuthenticated,
-    requireRole("admin"),
+    requireRole("user"),
     upload.fields([
         { name: "images", maxCount: 15 },
         { name: "cover", maxCount: 1 },
@@ -29,7 +29,7 @@ router.post(
 router.post(
     "/skus",
     isAuthenticated,
-    requireRole("admin"),
+    requireRole("user"),
     upload.fields([
         { name: "images", maxCount: 15 },
         { name: "cover", maxCount: 1 },
@@ -37,7 +37,7 @@ router.post(
     productsController.createSku
 )
 
-router.post("/product-attributes", isAuthenticated, requireRole("admin"), productsController.createProductAttribute)
+router.post("/product-attributes", isAuthenticated, requireRole("user"), productsController.createProductAttribute)
 
 router.get("/products-skus", productsController.getProductsWithSkus)
 router.get("/", productsController.getProducts)
