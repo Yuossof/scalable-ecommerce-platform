@@ -39,10 +39,12 @@ jobs:
         run: echo "testing stage"
 
       - name: Build and Deploy
-        run: docker compose up -d --build web
-
-      - name: Check containers
-        run: docker compose ps
-
+        run: |
+          docker compose \
+            --env-file /home/azureuser/secrets/scalable-ecommerce-platform/web.env \
+            up -d --build --force-recreate web
+            - name: Check containers
+              run: docker compose ps
+      
       - name: Show logs
         run: docker compose logs --tail=100

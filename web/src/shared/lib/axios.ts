@@ -6,11 +6,7 @@ import { API_ENDPOINTS } from "./api/endpoints";
  * `accessToken` / `refreshToken` cookies set by the backend, so every request
  * is sent with `withCredentials` and no token is ever read or stored in JS.
  */
-export const axiosInstanace = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api`,
-  withCredentials: true,
-});
-
+ 
 declare module "axios" {
   export interface InternalAxiosRequestConfig {
     _retried?: boolean;
