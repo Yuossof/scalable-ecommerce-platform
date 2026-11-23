@@ -7,16 +7,16 @@
   /* ===== Brand Palette ===== */
   /* ========================= */
 
-  --brand-900: #0f172a; /* slate-900 */
-  --brand-800: #1e293b; /* slate-800 */
-  --brand-700: #334155; /* slate-700 */
-  --brand-600: #475569; /* slate-600 */
-  --brand-500: #64748b; /* slate-500 */
+  --brand-900: #f2f0e9;
+  --brand-800: #deddd5;
+  --brand-700: #bfc0b6;
+  --brand-600: #a0a297;
+  --brand-500: #85877d;
 
-  --accent-600: #ea580c; /* orange-600 */
-  --accent-500: #f97316; /* orange-500 */
-  --accent-300: #fdba74; /* orange-300 */
-  --accent-50: #fff7ed; /* orange-50 */
+  --accent-600: #89947d;
+  --accent-500: #a4af98;
+  --accent-300: #c4cbbd;
+  --accent-50: #2d3129;
 
   /* ========================= */
   /* ===== Semantic Tokens ==== */
@@ -24,31 +24,32 @@
 
   --color-primary: var(--brand-800);
   --color-primary-strong: var(--brand-900);
-  --color-primary-hover: var(--brand-700); /* slate-800 */
-  --color-primary-light: var(--brand-700); /* slate-700 */
+  --color-primary-hover: var(--brand-700);
+  --color-primary-light: var(--brand-700);
 
-  --color-accent: var(--accent-500); /* orange-500 */
-  --color-accent-strong: var(--accent-600); /* orange-600 */
-  --color-accent-hover: var(--accent-600); /* orange-600 */
-  --color-accent-light: var(--accent-300); /* orange-300 */
+  --color-accent: var(--accent-500);
+  --color-accent-strong: var(--accent-600);
+  --color-accent-hover: var(--accent-600);
+  --color-accent-light: var(--accent-300);
 
-  --color-bg-primary: #ffffff; /* white */
-  --color-bg-secondary: #f8fafc; /* slate-50 */
-  --color-border-primary: #e2e8f0; /* slate-200 */
+  --color-bg-primary: #171815;
+  --color-bg-secondary: #20211d;
+  --color-border-primary: #343630;
 
-  --color-text-primary: var(--brand-900); /* slate-900 */
-  --color-text-secondary: var(--brand-600); /* slate-600 */
-  --color-text-muted: var(--brand-500); /* slate-500 */
+  --color-text-primary: var(--brand-900);
+  --color-text-inverted: #171815;
+  --color-text-secondary: var(--brand-600);
+  --color-text-muted: var(--brand-500);
 
-  --color-border-secondary: #cbd5e1; /* slate-300 */
-  --color-border-tertiary: #f1f5f9; /* slate-100 */
-  --color-border-hover: var(--accent-500); /* orange-500 */
+  --color-border-secondary: #45473f;
+  --color-border-tertiary: #292a25;
+  --color-border-hover: var(--accent-500);
 
-  --color-text-subtle: #94a3b8; /* slate-400 */
-  --color-text-faint: #cbd5e1; /* slate-300 */
+  --color-text-subtle: #72746b;
+  --color-text-faint: #55574f;
 
-  --color-bg-overlay: #f8fafc; /* slate-50 */
-  --color-overlay-dark: rgba(0, 0, 0, 0.05);
+  --color-bg-overlay: #20211d;
+  --color-overlay-dark: rgba(0, 0, 0, 0.22);
 }
 
 /* ===== Dark Mode ===== */
