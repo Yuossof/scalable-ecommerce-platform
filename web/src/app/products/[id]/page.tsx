@@ -19,7 +19,7 @@ interface ProductPageProps {
  */
 async function fetchProduct(id: string) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/products/products-skus`,
+    `${process.env.NEXT_PUBLIC_API_PRIVATE_IP}/api/products/products-skus`,
     { next: { revalidate: 3600 } }
   );
 
