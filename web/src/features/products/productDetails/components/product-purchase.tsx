@@ -6,6 +6,10 @@ import ProductActions from './product-actions';
 import { getDefaultSku } from '@/shared/lib/api/mappers';
 import type { Product } from '@/shared/types/api';
 
+function formatPrice(price: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+}
+
 /**
  * Client-side purchase panel: owns the selected-SKU state so the price and the
  * add-to-cart action always target the same SKU.
@@ -28,7 +32,14 @@ export default function ProductPurchase({ product }: { product: Product }) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mt-7 space-y-6">
+      <div className="flex items-end justify-between border-b border-border-primary pb-6">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[.17em] text-text-muted">Price</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-.04em] tabular-nums">{formatPrice(selectedSku.price)}</p>
+        </div>
+        <p className="pb-1 text-xs text-text-muted">Taxes included</p>
+      </div>
       <VariantSelector
         skus={product.skus}
         selectedSkuId={selectedSku.id}
@@ -36,7 +47,6 @@ export default function ProductPurchase({ product }: { product: Product }) {
       />
       <ProductActions
         skuId={selectedSku.id}
-        price={selectedSku.price}
         maxQuantity={selectedSku.quantity}
       />
     </div>

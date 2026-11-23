@@ -17,34 +17,34 @@ export default function VariantSelector({
   if (!skus || skus.length === 0) return null;
 
   return (
-    <div className="space-y-4">
-      <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted/70 block">
-        Choose variant
-      </span>
-      <div className="flex gap-3 flex-wrap">
+    <fieldset className="space-y-3">
+      <legend className="text-[11px] font-semibold uppercase tracking-[.16em] text-text-secondary">
+        Choose an option
+      </legend>
+      <div className="flex flex-wrap gap-2">
         {skus.map((sku) => {
           const isSelected = sku.id === selectedSkuId;
           const isSoldOut = sku.quantity <= 0;
           return (
             <button
               key={sku.id}
+              type="button"
               onClick={() => onSelect(sku.id)}
               disabled={isSoldOut}
-              title={sku.sku}
-              className={`group relative min-w-14 h-14 px-3 rounded-xl border-2 transition-all duration-300 text-[11px] font-semibold ${
+              title={`${sku.sku}${isSoldOut ? ' — out of stock' : ''}`}
+              aria-pressed={isSelected}
+              className={`inline-flex min-h-10 items-center gap-2 border px-4 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                 isSelected
-                  ? 'border-primary bg-primary text-text-inverted shadow-lg shadow-primary/30'
-                  : 'border-border-primary/40 bg-bg-secondary text-text-primary hover:border-primary/60 hover:bg-bg-tertiary'
-              } ${isSoldOut ? 'opacity-40 cursor-not-allowed line-through' : ''}`}
+                  ? 'border-text-primary bg-text-primary text-bg-primary'
+                  : 'border-border-primary bg-bg-primary text-text-primary hover:border-text-secondary'
+              } ${isSoldOut ? 'cursor-not-allowed opacity-40 line-through' : ''}`}
             >
-              <span className="flex items-center justify-center gap-1">
-                {isSelected && <Check className="w-3.5 h-3.5" />}
-                {sku.sku}
-              </span>
+              {isSelected && <Check aria-hidden="true" className="size-3.5" />}
+              {sku.sku}
             </button>
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }

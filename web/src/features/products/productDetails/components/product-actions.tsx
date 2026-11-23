@@ -17,9 +17,7 @@ import {
 
 interface ProductActionsProps {
   skuId: string;
-  price: number;
   maxQuantity: number;
-  onMoreInfo?: () => void;
 }
 
 function toMessage(error: unknown): string {
@@ -28,9 +26,7 @@ function toMessage(error: unknown): string {
 
 export default function ProductActions({
   skuId,
-  price,
   maxQuantity,
-  onMoreInfo,
 }: ProductActionsProps) {
   const dispatch = useDispatch<AppDispatch>();
   const toast = useToast();
@@ -99,21 +95,13 @@ export default function ProductActions({
   };
 
   return (
-    <div className="space-y-4 pt-4 border-t border-border-primary/30">
-      <div className="flex items-baseline gap-3">
-        <span className="text-5xl font-black tracking-tighter text-text-primary">
-          ${price.toFixed(2)}
-        </span>
-        <span className="text-[10px] font-mono text-text-muted/60 uppercase tracking-wider">
-          inc. tax
-        </span>
-      </div>
-
+    <div className="space-y-3">
       {!matchedItem && (
         <button
+          type="button"
           onClick={handleAddToCart}
           disabled={isLoading || outOfStock}
-          className="w-full group relative py-4 px-6 rounded-xl uppercase font-black text-sm tracking-wider overflow-hidden transition-all duration-300 bg-primary text-text-inverted border border-primary hover:shadow-lg hover:shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full group relative py-4 px-6 border border-primary bg-primary text-text-inverted uppercase text-sm font-semibold tracking-[.12em] transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <div className="flex items-center justify-center gap-2 relative z-10">
             {isLoading ? (
@@ -160,12 +148,12 @@ export default function ProductActions({
         </div>
       )}
 
-      <button
-        onClick={onMoreInfo}
-        className="w-full py-4 px-6 rounded-xl border border-border-primary/50 text-text-primary hover:border-primary/60 hover:bg-primary/5 uppercase font-semibold text-xs tracking-wider transition-all duration-300 flex items-center justify-center gap-2 group"
+      <a
+        href="#product-details"
+        className="flex w-full items-center justify-center border border-border-primary px-6 py-3.5 text-xs font-semibold uppercase tracking-[.12em] text-text-primary transition-colors hover:border-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <span>More information</span>
-      </button>
+        View product details
+      </a>
     </div>
   );
 }
