@@ -23,6 +23,7 @@ export interface IProduct {
     images: string[];
     category_id: string;
     created_at: string;
+    skus?: ISku[];
 }
 
 export interface ISku {

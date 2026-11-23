@@ -63,9 +63,28 @@ export class ProductsRepository {
 
     async getProductById(productId: string) {
         const [product] = await sql<IProduct[]>`
-          SELECT * FROM products WHERE id = ${productId}
+        SELECT p.id, p.name, p.description, p.summary, p.cover, p.images, p.category_id, p.created_at,
+          COALESCE(
+            json_agg(
+              json_build_object(
+                   'id', ps.id,
+                   'product_id', ps.product_id,
+                   'category_id', p.category_id,
+                   'sku', ps.sku,
+                   'price', ps.price,
+                   'quantity', ps.quantity,
+                   'cover', ps.cover,
+                   'images', ps.images,
+                   'created_at', ps.created_at
+              )
+            ) FILTER (WHERE ps.id IS NOT NULL), '[]'
+          ) as skus
+          FROM
+          products p
+          LEFT JOIN products_skus ps ON p.id = ps.product_id
+          WHERE p.id = ${productId}
+          GROUP BY p.id
         `
-
         return product
     }
 
