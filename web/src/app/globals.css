@@ -7,16 +7,16 @@
   /* ===== Brand Palette ===== */
   /* ========================= */
 
-  --brand-900: #f2f0e9;
-  --brand-800: #deddd5;
-  --brand-700: #bfc0b6;
-  --brand-600: #a0a297;
-  --brand-500: #85877d;
+  --brand-900: #0f172a;
+  --brand-800: #1e293b;
+  --brand-700: #334155;
+  --brand-600: #475569;
+  --brand-500: #64748b;
 
-  --accent-600: #89947d;
-  --accent-500: #a4af98;
-  --accent-300: #c4cbbd;
-  --accent-50: #2d3129;
+  --accent-600: #ea580c;
+  --accent-500: #f97316;
+  --accent-300: #fdba74;
+  --accent-50: #fff7ed;
 
   /* ========================= */
   /* ===== Semantic Tokens ==== */
@@ -32,24 +32,24 @@
   --color-accent-hover: var(--accent-600);
   --color-accent-light: var(--accent-300);
 
-  --color-bg-primary: #171815;
-  --color-bg-secondary: #20211d;
-  --color-border-primary: #343630;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f8fafc;
+  --color-border-primary: #e2e8f0;
 
   --color-text-primary: var(--brand-900);
-  --color-text-inverted: #171815;
+  --color-text-inverted: #ffffff;
   --color-text-secondary: var(--brand-600);
   --color-text-muted: var(--brand-500);
 
-  --color-border-secondary: #45473f;
-  --color-border-tertiary: #292a25;
+  --color-border-secondary: #cbd5e1;
+  --color-border-tertiary: #f1f5f9;
   --color-border-hover: var(--accent-500);
 
-  --color-text-subtle: #72746b;
-  --color-text-faint: #55574f;
+  --color-text-subtle: #94a3b8;
+  --color-text-faint: #cbd5e1;
 
-  --color-bg-overlay: #20211d;
-  --color-overlay-dark: rgba(0, 0, 0, 0.22);
+  --color-bg-overlay: #f8fafc;
+  --color-overlay-dark: rgba(0, 0, 0, 0.05);
 }
 
 /* ===== Dark Mode ===== */
