@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
     VERIFY: "/auth/verify",
     RESEND_VERIFICATION: "/auth/resend-verification-link",
     REFRESH: "/auth/refresh",
+    LOGOUT: "/auth/logout",
   },
 
   CATEGORIES: {
@@ -21,6 +22,7 @@ export const API_ENDPOINTS = {
   PRODUCTS: {
     GET: "/products",
     GET_WITH_SKUS: "/products/products-skus",
+    GET_COLLECTIONS: "/products/collections",
     GET_ONE: (productId: string) => `/products/${productId}`,
   },
 
@@ -36,6 +38,16 @@ export const API_ENDPOINTS = {
     GET_ONE: (addressId: string) => `/addresses/${addressId}`,
     UPDATE: (addressId: string) => `/addresses/${addressId}`,
     DELETE: (addressId: string) => `/addresses/${addressId}`,
+  },
+
+  FAVORITES: {
+    GET: "/favorites",
+    ADD: "/favorites",
+    REMOVE: (productId: string) => `/favorites/${productId}`,
+  },
+
+  COUPONS: {
+    APPLY: "/coupons/apply",
   },
 
   ORDERS: {

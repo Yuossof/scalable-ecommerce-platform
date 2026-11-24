@@ -20,5 +20,6 @@ router.post("/login", authController.login);
 router.get("/verify", authController.verify);
 router.post("/resend-verification-link", authController.resendVerificationLink);
 router.get("/refresh", getUserIdFromRefreshToken, authController.refresh);
+router.post("/logout", authController.logout);
 export default router;
 

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import AddToCartButton from "./add-to-cart-button";
+import FavoriteButton from "@/features/favorites/components/favorite-button";
 import LinkButton from "@/shared/components/link-button-client-cmp";
 import {
   getDefaultSku,
@@ -16,6 +17,14 @@ const ProductCard = ({ product }: { product: Product }) => {
   const maxPrice = getProductMaxPrice(product);
   const defaultSku = getDefaultSku(product);
   const stock = getProductStock(product);
+  const salePrices = product.skus
+    .filter(
+      (sku) =>
+        sku.compare_at_price !== null && sku.compare_at_price > sku.price
+    )
+    .map((sku) => sku.compare_at_price as number);
+  const salePrice = salePrices.length ? Math.min(...salePrices) : null;
+  const onSale = salePrice !== null;
 
   const priceLabel =
     maxPrice > minPrice
@@ -53,11 +62,15 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         )}
 
-        {/* Tech ID */}
-        <div className="absolute top-3 right-3">
-          <span className="text-[8px] font-mono text-text-subtle uppercase tracking-tighter">
-            {product.name.slice(0, 10).replace(/\s+/g, "_")}
+        {onSale && (
+          <span className="absolute bottom-3 left-3 z-10 rounded-full bg-accent px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white">
+            Special offer
           </span>
+        )}
+
+        {/* Favorites */}
+        <div className="absolute top-2.5 right-2.5 z-20">
+          <FavoriteButton productId={product.id} compact />
         </div>
       </div>
 
@@ -82,9 +95,16 @@ const ProductCard = ({ product }: { product: Product }) => {
             <span className="text-[7px] font-bold text-text-subtle uppercase">
               Fixed Price
             </span>
-            <span className="text-xl font-black tracking-tighter text-text-primary">
-              {priceLabel}
-            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-black tracking-tighter text-text-primary">
+                {priceLabel}
+              </span>
+              {onSale && (
+                <span className="text-xs font-medium text-text-subtle line-through">
+                  ${salePrice.toFixed(2)}
+                </span>
+              )}
+            </div>
           </div>
 
           {defaultSku && (

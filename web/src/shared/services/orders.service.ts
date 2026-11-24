@@ -22,11 +22,13 @@ export interface CreateOrderResult {
   clientSecret: string;
 }
 
-export const createOrderService = async (): Promise<CreateOrderResult> => {
+export const createOrderService = async (
+  couponCode?: string
+): Promise<CreateOrderResult> => {
   try {
     const res = await axiosInstanace.post<{
       data: { order: RawOrder; clientSecret: string };
-    }>(API_ENDPOINTS.ORDERS.CREATE);
+    }>(API_ENDPOINTS.ORDERS.CREATE, couponCode ? { coupon_code: couponCode } : {});
     return {
       order: mapOrder(res.data.data.order),
       clientSecret: res.data.data.clientSecret,

@@ -1,6 +1,6 @@
 // features/checkout/components/checkout-page.tsx
 "use client"
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import CheckoutSteps from './checkout-steps'
 import ShippingForm from './shipping-form'
@@ -17,6 +17,7 @@ import {
 } from '@/store/slices/cart-slice-items'
 import { useAuth } from '@/hooks/useAuth'
 import { useAddresses } from '../hooks/use-addresses'
+import { useCoupon } from '../hooks/use-coupon'
 import {
   createOrderService,
   type CreateOrderResult,
@@ -41,12 +42,17 @@ const CheckoutPage = () => {
   const [orderResult, setOrderResult] = useState<CreateOrderResult | null>(null)
   const [creatingOrder, setCreatingOrder] = useState(false)
   const [orderError, setOrderError] = useState('')
+  const couponState = useCoupon()
+  const cartFetched = useRef(false)
 
   useEffect(() => {
-    if (isAuthenticated && !cartLoading && cartItems.length === 0) {
-      dispatch(fetchCartItems())
+    // Fetch once per authenticated session. The backend clears the cart when
+    // the order is created, so re-fetching on an empty cart would loop.
+    if (isAuthenticated && !cartFetched.current) {
+      cartFetched.current = true
+      void dispatch(fetchCartItems())
     }
-  }, [dispatch, isAuthenticated, cartLoading, cartItems.length])
+  }, [dispatch, isAuthenticated, cartLoading])
 
   /**
    * Creates the order (and its PaymentIntent) the first time the user proceeds
@@ -63,7 +69,7 @@ const CheckoutPage = () => {
     setCreatingOrder(true)
     setOrderError('')
     try {
-      const result = await createOrderService()
+      const result = await createOrderService(couponState.coupon?.code)
       setOrderResult(result)
       setCurrentStep('payment')
     } catch (error) {
@@ -75,7 +81,7 @@ const CheckoutPage = () => {
     } finally {
       setCreatingOrder(false)
     }
-  }, [orderResult])
+  }, [orderResult, couponState.coupon])
 
   // Session is still being resolved.
   if (authLoading) {
@@ -185,7 +191,15 @@ const CheckoutPage = () => {
                 : 'lg:col-span-1'
             }`}
           >
-            <OrderSummary items={cartItems} />
+            <OrderSummary
+              items={cartItems}
+              coupon={couponState.coupon}
+              couponError={couponState.error}
+              applyingCoupon={couponState.applying}
+              onApplyCoupon={couponState.applyCoupon}
+              onRemoveCoupon={couponState.removeCoupon}
+              canEditCoupon={!orderResult}
+            />
           </div>
 
           {currentStep === 'review' && (

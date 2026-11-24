@@ -85,6 +85,19 @@ export const refreshSessionService = async (): Promise<RefreshResponse> => {
   }
 };
 
+/**
+ * Explicit sign-out. The backend invalidates the stored refresh token and
+ * clears both HTTP-only cookies; local SWR caches are cleared by the caller
+ * (or by the axios interceptor when a refresh fails).
+ */
+export const logoutService = async (): Promise<void> => {
+  try {
+    await axiosInstanace.post(API_ENDPOINTS.AUTH.LOGOUT);
+  } catch {
+    // Sign-out must always clear local state, even on a network failure.
+  }
+};
+
 /** Consumes the email verification token from the emailed link. */
 export const verifyEmailService = async (token: string): Promise<string> => {
   try {

@@ -6,10 +6,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="flex flex-col min-h-screen relative">
             {/* Header */}
-            <div className='hidden md:block'>
-                <SiteHeader />
-            </div>
-            <main className="relative flex flex-1 pt-32 md:pt-36 lg:pt-[168px] ">
+            <SiteHeader />
+            <main className="relative flex flex-1 pt-40 md:pt-36 lg:pt-[168px] ">
                 <div id="main_overlay" className="absolute inset-0"></div>
                 <div className='relative z-40 flex flex-1'>
                     <div className='w-full h-full'>

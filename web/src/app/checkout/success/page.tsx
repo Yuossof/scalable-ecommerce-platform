@@ -20,13 +20,19 @@ const CheckoutSuccessContent = () => {
   const dispatch = useDispatch<AppDispatch>()
 
   // Covers the 3-D Secure redirect path where the checkout page never got to
-  // reset its own cart state.
+  // reset its own cart state (only after an actually successful payment).
   useEffect(() => {
-    dispatch(resetCart())
-  }, [dispatch])
+    if (redirectStatus === 'succeeded' || redirectStatus === 'success') {
+      dispatch(resetCart())
+    }
+  }, [dispatch, redirectStatus])
 
   const hasIntent = Boolean(paymentIntent)
-  const succeeded = hasIntent && redirectStatus !== 'failed'
+  // Stripe reports actual outcomes through these values; anything else must
+  // never be presented as a successful payment.
+  const succeeded =
+    hasIntent &&
+    (redirectStatus === 'succeeded' || redirectStatus === 'success')
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

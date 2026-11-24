@@ -1,11 +1,16 @@
 // components/home/Hero.tsx
 "use client"
 import React, { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Gamepad2, Headphones, Pause, Play, Smartphone, type LucideIcon } from 'lucide-react'
 import { storeConfig } from '@/conf/config.store'
 import Categories from '../categories/Categories'
+
+const heroIcons: Record<string, LucideIcon> = {
+  smartphone: Smartphone,
+  gaming: Gamepad2,
+  audio: Headphones,
+}
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -84,17 +89,12 @@ const Hero = () => {
                       </Link>
                     </div>
 
-                    {/* Product Image */}
+                    {/* Product Visual */}
                     <div className="hidden lg:flex absolute right-0 top-0 bottom-0 w-1/2 items-center justify-center p-8">
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={slide.image}
-                          alt={slide.title}
-                          fill
-                          className="object-contain drop-shadow-2xl"
-                          priority={index === 0}
-                        />
-                      </div>
+                      {(() => {
+                        const Icon = heroIcons[slide.icon] ?? Smartphone
+                        return <Icon className="w-56 h-56 text-white/25 drop-shadow-2xl" aria-hidden="true" />
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -149,7 +149,7 @@ const Hero = () => {
           {/* Side Banners */}
           <div className="hidden lg:flex flex-col gap-4">
             {/* Banner 1 */}
-            <Link href="/deals/audio" className="flex-1 relative rounded-2xl overflow-hidden group">
+            <Link href="/shop?category=audio" className="flex-1 relative rounded-2xl overflow-hidden group">
               <div className="absolute inset-0 bg-linear-to-br from-accent  to-accent-strong" />
               <div className="relative h-full p-5 flex flex-col justify-between">
                 <div>
@@ -164,7 +164,7 @@ const Hero = () => {
             </Link>
 
             {/* Banner 2 */}
-            <Link href="/category/wearables" className="flex-1 relative rounded-2xl overflow-hidden group">
+            <Link href="/shop?category=wearables" className="flex-1 relative rounded-2xl overflow-hidden group">
               <div className="absolute inset-0 bg-linear-to-br  from-primary-light/70 to-accent-light/60" />
               <div className="relative h-full p-5 flex flex-col justify-between">
                 <div>

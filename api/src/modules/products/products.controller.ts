@@ -67,6 +67,40 @@ export class ProductsController {
     }
   }
 
+  getCollections = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const collections = await this.productService.getCollections()
+      return res.status(200).json({ data: collections })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  setFeatured = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const product = await this.productService.setFeatured(
+        req.params.productId as string,
+        Boolean(req.body?.is_featured)
+      )
+      return res.status(200).json({ data: product })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  setCompareAtPrice = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const value = req.body?.compare_at_price
+      const sku = await this.productService.setCompareAtPrice(
+        req.params.skuId as string,
+        value === null || value === "" ? null : Number(value)
+      )
+      return res.status(200).json({ data: sku })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   createProductAttribute = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body as CreateProductAttributeDTO

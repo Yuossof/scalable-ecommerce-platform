@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import ProductDetailsServer from '@/features/products/productDetails/components/product-details-server';
 import { mapProducts } from '@/shared/lib/api/mappers';
+import { API_ENDPOINTS } from '@/shared/lib/api/endpoints';
 import type { RawProduct } from '@/shared/types/api';
 
 // ISR Configuration
@@ -18,8 +19,11 @@ interface ProductPageProps {
  * (`GET /products/:id`) omits SKUs, so it cannot drive the purchase panel.
  */
 async function fetchProduct(id: string) {
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_API_PRIVATE_IP ?? '';
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_PRIVATE_IP}/api/products/products-skus`,
+    `${apiUrl}/api${API_ENDPOINTS.PRODUCTS.GET_WITH_SKUS}`,
     { next: { revalidate: 3600 } }
   );
 

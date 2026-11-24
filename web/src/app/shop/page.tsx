@@ -6,7 +6,7 @@ const ShopPage = () => {
   return (
     <main className="min-h-screen bg-slate-50">
       {/* <ShopHero /> */}
-      <Suspense fallback={<div />}>
+      <Suspense fallback={<div className="min-h-[60vh]" aria-hidden="true" />}>
         <ShopContent />
       </Suspense>
     </main>

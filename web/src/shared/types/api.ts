@@ -45,6 +45,7 @@ export interface RawSku {
   cover: string | null;
   images: string[] | null;
   created_at?: string;
+  compare_at_price?: string | number | null;
 }
 
 export interface Sku {
@@ -57,6 +58,7 @@ export interface Sku {
   cover: string | null;
   images: string[];
   created_at?: string;
+  compare_at_price: number | null;
 }
 
 export interface RawProduct {
@@ -68,6 +70,7 @@ export interface RawProduct {
   images: string[] | null;
   category_id: string;
   created_at?: string;
+  is_featured?: boolean;
   skus?: RawSku[] | null;
 }
 
@@ -80,6 +83,7 @@ export interface Product {
   images: string[];
   category_id: string;
   created_at?: string;
+  is_featured: boolean;
   skus: Sku[];
 }
 
@@ -169,6 +173,8 @@ export interface RawOrder {
   order_id?: string;
   user_id: string;
   subtotal: string | number;
+  discount?: string | number | null;
+  coupon_code?: string | null;
   total: string | number;
   status: string;
   payment_status?: string | null;
@@ -181,9 +187,21 @@ export interface Order {
   id: string;
   user_id: string;
   subtotal: number;
+  discount: number;
+  coupon_code: string | null;
   total: number;
   status: string;
   payment_status: string | null;
   created_at: string;
   items: OrderItem[];
+}
+
+/** Server-calculated coupon result (never computed in the browser). */
+export interface CouponPreview {
+  code: string;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  subtotal: number;
+  discount: number;
+  total: number;
 }

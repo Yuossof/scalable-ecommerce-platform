@@ -60,17 +60,17 @@ const TopBar = () => {
           {/* Center - Promo */}
           <div className="flex-1 text-center">
             <p className="text-yellow-400 font-medium">
-              🔥 Free shipping on orders over \$100 | Same-day delivery available
+              🔥 Free shipping on orders over $100 | Same-day delivery available
             </p>
           </div>
 
           {/* Right */}
           <div className="hidden sm:flex items-center gap-4">
-            <Link href="/track-order" className="hover:text-yellow-400 transition-colors">
-              Track Order
+            <Link href="/account/orders" className="hover:text-yellow-400 transition-colors">
+              My Orders
             </Link>
-            <Link href="/support" className="hover:text-yellow-400 transition-colors">
-              Support
+            <Link href="/favorites" className="hover:text-yellow-400 transition-colors">
+              Favorites
             </Link>
           </div>
         </div>
@@ -82,7 +82,7 @@ const TopBar = () => {
 // ==================== Main Header ====================
 const MainHeader = () => {
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, logout } = useAuth()
   const dispatch = useDispatch<AppDispatch>()
 
   const count = useSelector(selectCartCount)
@@ -102,6 +102,11 @@ const MainHeader = () => {
     event.preventDefault()
     const value = searchValue.trim()
     router.push(value ? `/shop?q=${encodeURIComponent(value)}` : '/shop')
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/')
   }
 
   return (
@@ -158,18 +163,14 @@ const MainHeader = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-1 lg:gap-2">
-            {/* Mobile Search */}
-            <button className="md:hidden p-2.5 hover:bg-gray-100 rounded-full transition-colors">
-              <Search className="w-5 h-5 text-gray-700" />
-            </button>
-
-            {/* Wishlist */}
-            <Link
-              href="/wishlist"
-              className="hidden sm:flex items-center gap-2 p-2.5 hover:bg-gray-100 rounded-full transition-colors"
+            {/* Favorites */}
+            <LinkButton
+              href="/favorites"
+              className="flex items-center gap-2 p-2.5 hover:bg-gray-100 rounded-full transition-colors"
+              aria-label="Favorites"
             >
               <Heart className="w-5 h-5 text-gray-700" />
-            </Link>
+            </LinkButton>
 
             {/* Account */}
             {!isAuthenticated && (
@@ -186,16 +187,35 @@ const MainHeader = () => {
             )}
 
             {isAuthenticated && (
-              <LinkButton
-                href="/account/orders"
-                className="hidden lg:flex items-center gap-2 p-2.5 hover:bg-gray-100 rounded-xl transition-colors"
-              >
-                <User className="w-5 h-5 text-gray-700" />
-                <div className="text-left">
-                  <p className="text-[10px] text-gray-500">My</p>
-                  <p className="text-xs font-semibold text-gray-900">Orders</p>
-                </div>
-              </LinkButton>
+              <>
+                <LinkButton
+                  href="/account/orders"
+                  className="hidden lg:flex items-center gap-2 p-2.5 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <User className="w-5 h-5 text-gray-700" />
+                  <div className="text-left">
+                    <p className="text-[10px] text-gray-500">My</p>
+                    <p className="text-xs font-semibold text-gray-900">Orders</p>
+                  </div>
+                </LinkButton>
+                <LinkButton
+                  href="/account/addresses"
+                  className="hidden lg:flex items-center gap-2 p-2.5 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <MapPin className="w-5 h-5 text-gray-700" />
+                  <div className="text-left">
+                    <p className="text-[10px] text-gray-500">My</p>
+                    <p className="text-xs font-semibold text-gray-900">Addresses</p>
+                  </div>
+                </LinkButton>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="hidden lg:block text-xs font-medium text-text-secondary hover:text-red-600 transition-colors"
+                >
+                  Sign out
+                </button>
+              </>
             )}
 
             {/* Cart */}

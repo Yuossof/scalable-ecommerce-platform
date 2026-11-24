@@ -74,6 +74,10 @@ export function mapSku(raw: RawSku): Sku {
     cover: raw.cover ?? null,
     images: toStringArray(raw.images),
     created_at: raw.created_at,
+    compare_at_price:
+      raw.compare_at_price === null || raw.compare_at_price === undefined
+        ? null
+        : toNumber(raw.compare_at_price),
   };
 }
 
@@ -87,6 +91,7 @@ export function mapProduct(raw: RawProduct): Product {
     images: toStringArray(raw.images),
     category_id: raw.category_id,
     created_at: raw.created_at,
+    is_featured: Boolean(raw.is_featured),
     skus: Array.isArray(raw.skus) ? raw.skus.map(mapSku) : [],
   };
 }
@@ -186,6 +191,8 @@ export function mapOrder(raw: RawOrder): Order {
     id: raw.id ?? raw.order_id ?? "",
     user_id: raw.user_id,
     subtotal: toNumber(raw.subtotal),
+    discount: toNumber(raw.discount),
+    coupon_code: raw.coupon_code ?? null,
     total: toNumber(raw.total),
     status: raw.status,
     payment_status: raw.payment_status ?? null,

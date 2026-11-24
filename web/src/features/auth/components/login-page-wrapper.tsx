@@ -13,7 +13,13 @@ const LoginPageWrapper = () => {
             // Hard navigation forces the SWR session probe (and every other
             // authenticated request) to re-run with the freshly set cookies.
             const redirect = new URLSearchParams(window.location.search).get("redirect");
-            const target = redirect && redirect.startsWith("/") ? redirect : "/";
+            // Only allow local absolute paths: `//evil.example` also starts
+            // with "/" and must never be used as a redirect target.
+            const isLocalPath = Boolean(
+                redirect && redirect.startsWith("/") && !redirect.startsWith("//")
+            );
+            const target = isLocalPath ? redirect! : "/";
+            window.dispatchEvent(new CustomEvent("auth:changed"));
             window.location.assign(target);
             return true;
         } catch (error) {

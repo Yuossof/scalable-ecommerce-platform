@@ -9,13 +9,16 @@ export class OrdersController {
 
     createOrder = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { order, clientSecret } = await this.orderService.create(req.user.userId)
+            const couponCode = (req.body as { coupon_code?: string } | undefined)?.coupon_code
+            const { order, clientSecret } = await this.orderService.create(
+                req.user.userId,
+                couponCode
+            )
             return res.status(201).json({
                 data: {
                     order,
                     clientSecret: clientSecret
                 },
-
             })
         } catch (error) {
             next(error)
@@ -38,6 +41,9 @@ export class OrdersController {
             const orderId = req.params["orderId"] as string
             const userId = req.user.userId
             const order = await this.orderService.getOrder(userId, orderId)
+            if (!order) {
+                return res.status(404).json({ success: false, message: "Order not found" })
+            }
             return res.status(200).json({
                 data: order
             })

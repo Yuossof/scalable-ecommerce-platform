@@ -12,7 +12,7 @@ type LinkButtonProps = React.ComponentPropsWithoutRef<"a"> & {
 }
 
 const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
-  ({ href, children, className = "", prefetch = false }, ref) => {
+  ({ href, children, className = "", prefetch = false, onClick, ...rest }, ref) => {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -27,7 +27,9 @@ const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
       setLoading(false);
     }, [pathname]);
 
-    const handleClick = (e: React.MouseEvent) => {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      onClick?.(e);
+      if (e.defaultPrevented) return;
       e.preventDefault();
       if (pathname !== href) {
         setLoading(true);
@@ -47,6 +49,7 @@ const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
           href={href}
           onClick={handleClick}
           onMouseEnter={handlePrefetch}
+          {...rest}
           className={`relative z-50 cursor-pointer ${className}`}
         >
           {!children && (<div></div>)}

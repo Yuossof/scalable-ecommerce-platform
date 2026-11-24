@@ -13,6 +13,7 @@ export interface IOrder {
     user_id: string;
     subtotal: number;
     discount?: number;
+    coupon_code?: string | null;
     shipping_cost: number;
     total: number;
     status?: string;
@@ -49,4 +50,4 @@ export interface ICartItemWithSku {
 
 
 
-export type OrderPaymentStatus = "pending" | "paid" | "failed"
+export type OrderPaymentStatus = "pending" | "success" | "failed" | "canceled"

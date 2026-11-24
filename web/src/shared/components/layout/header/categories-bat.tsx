@@ -8,11 +8,14 @@ const CategoriesBar = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center gap-1 h-12">
           {/* All Categories Dropdown */}
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium text-sm hover:bg-primary-hover transition-colors">
+          <LinkButton
+            href="/shop"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg font-medium text-sm hover:bg-primary-hover transition-colors"
+          >
             <Menu className="w-4 h-4" />
             <span>All Categories</span>
             <ChevronDown className="w-4 h-4" />
-          </button>
+          </LinkButton>
 
           {/* Main Links */}
           <nav className="flex items-center ml-4">
@@ -41,7 +44,7 @@ const CategoriesBar = () => {
           {/* Right Side - Special Offer */}
           <div className="ml-auto">
             <LinkButton 
-              href="/deals" 
+              href="/shop?sort=price-asc" 
               className="flex items-center gap-2 text-sm text-secondary font-semibold hover:underline"
             >
               <span>🎉</span>

@@ -35,6 +35,7 @@ const CartItem = ({ item }: CartItemProps) => {
       toast.success('Item removed')
     } catch (error) {
       toast.error(error instanceof ApiError ? error.message : 'Something went wrong')
+    } finally {
       setIsRemoving(false)
     }
   }

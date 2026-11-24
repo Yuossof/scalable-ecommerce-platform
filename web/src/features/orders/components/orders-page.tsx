@@ -21,8 +21,11 @@ function formatDate(value: string): string {
 function statusBadge(status: string): string {
   switch (status) {
     case 'paid':
+    case 'success':
+    case 'succeeded':
       return 'bg-emerald-100 text-emerald-700'
     case 'failed':
+    case 'canceled':
       return 'bg-red-100 text-red-700'
     default:
       return 'bg-amber-100 text-amber-700'

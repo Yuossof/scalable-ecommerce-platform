@@ -6,12 +6,14 @@ export class OrdersRepository {
         userId: string,
         cartId: string,
         subtotal: number,
+        discount: number,
+        couponCode: string | null,
         cartItems: ICartItemWithSku[]
     ) {
         return sql.begin(async (tx) => {
             const [order] = await tx<IOrder[]>`
-                INSERT INTO orders (user_id, subtotal, total)
-                VALUES (${userId}, ${subtotal}, ${subtotal})
+                INSERT INTO orders (user_id, subtotal, discount, total, coupon_code)
+                VALUES (${userId}, ${subtotal}, ${discount}, ${subtotal - discount}, ${couponCode})
                 RETURNING *
             `;
 
@@ -52,13 +54,15 @@ export class OrdersRepository {
 
     async findAllByUserId(userId: string) {
         const orders = await sql`
-            SELECT 
+            SELECT
              o.id AS order_id,
              o.user_id,
              o.subtotal,
+             o.discount,
+             o.coupon_code,
              o.total,
              o.status,
-             payment_status,
+             o.payment_status,
              o.created_at,
              COALESCE(
                json_agg(
@@ -82,12 +86,15 @@ export class OrdersRepository {
 
     async findByIdAndUserId(userId: string, orderId: string) {
         const [order] = await sql`
-            SELECT 
+            SELECT
              o.id AS order_id,
              o.user_id,
              o.subtotal,
+             o.discount,
+             o.coupon_code,
              o.total,
              o.status,
+             o.payment_status,
              o.created_at,
              COALESCE(
                json_agg(

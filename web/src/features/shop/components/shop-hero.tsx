@@ -1,9 +1,10 @@
 // features/shop/components/shop-hero.tsx
 "use client"
 import React, { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Headphones, Laptop, Pause, Play, Smartphone, type LucideIcon } from 'lucide-react'
+
+const slideIcons: LucideIcon[] = [Smartphone, Laptop, Headphones]
 
 const slides = [
   {
@@ -14,8 +15,7 @@ const slides = [
     subtitle: 'Titanium. So strong. So light. So Pro.',
     price: 'From \$1,199',
     cta: 'Shop Now',
-    ctaLink: '/products/iphone-15',
-    image: '/images/products/iphone-15.png',
+    ctaLink: '/shop?q=iphone',
   },
   {
     id: 2,
@@ -25,8 +25,7 @@ const slides = [
     subtitle: 'The most advanced Mac ever.',
     price: 'From \$1,999',
     cta: 'Learn More',
-    ctaLink: '/products/macbook-pro',
-    image: '/images/products/macbook.png',
+    ctaLink: '/shop?q=macbook',
   },
   {
     id: 3,
@@ -36,8 +35,7 @@ const slides = [
     subtitle: 'Industry-leading noise cancellation.',
     price: '\$349',
     cta: 'Buy Now',
-    ctaLink: '/products/sony-headphones',
-    image: '/images/products/sony-headphones.png',
+    ctaLink: '/shop?category=audio',
   },
 ]
 
@@ -107,15 +105,12 @@ const ShopHero = () => {
                     </Link>
                   </div>
 
-                  {/* Product Image */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-[80%] hidden lg:block">
-                    <Image
-                      src={slide.image}
-                      alt={slide.title}
-                      fill
-                      className="object-contain"
-                      priority={index === 0}
-                    />
+                  {/* Product Visual */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-[80%] hidden lg:flex items-center justify-center">
+                    {(() => {
+                      const Icon = slideIcons[index] ?? Smartphone
+                      return <Icon className="w-48 h-48 text-white/20" aria-hidden="true" />
+                    })()}
                   </div>
                 </div>
               </div>
@@ -170,7 +165,7 @@ const ShopHero = () => {
           <div className="flex flex-row lg:flex-col gap-4 lg:gap-6">
             {/* Banner 1 - Hot Deal */}
             <Link 
-              href="/deals/earbuds" 
+              href="/shop?category=audio" 
               className="flex-1 relative rounded-2xl overflow-hidden group min-h-40 lg:min-h-0"
             >
               <div className="absolute inset-0 bg-linear-to-br from-orange-500 to-red-600" />
@@ -191,7 +186,7 @@ const ShopHero = () => {
 
             {/* Banner 2 - New Arrival */}
             <Link 
-              href="/category/wearables" 
+              href="/shop?category=wearables" 
               className="flex-1 relative rounded-2xl overflow-hidden group min-h-40 lg:min-h-0"
             >
               <div className="absolute inset-0 bg-linear-to-br from-emerald-500 to-teal-600" />

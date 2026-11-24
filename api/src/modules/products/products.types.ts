@@ -12,6 +12,7 @@ export interface CreateSkuDTO {
     price: number | string;
     attributes_ids: string[],
     quantity: number | string;
+    compare_at_price?: number | string | null;
 }
 
 export interface IProduct {
@@ -23,6 +24,7 @@ export interface IProduct {
     images: string[];
     category_id: string;
     created_at: string;
+    is_featured?: boolean;
     skus?: ISku[];
 }
 
@@ -36,6 +38,7 @@ export interface ISku {
     images: string[];
     category_id: string;
     created_at: string;
+    compare_at_price?: string | null;
 }
 
 export interface CreateProductAttributeDTO {

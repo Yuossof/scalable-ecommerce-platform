@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { mutate } from "swr";
 import { API_ENDPOINTS } from "./api/endpoints";
 
 /**
@@ -28,11 +29,13 @@ const AUTH_BYPASS_ROUTES: string[] = [
   API_ENDPOINTS.AUTH.VERIFY,
   API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
   API_ENDPOINTS.AUTH.REFRESH,
+  API_ENDPOINTS.AUTH.LOGOUT,
 ];
 
 /**
  * Single-flight refresh: concurrent 401s share one `GET /auth/refresh` call so
- * we never fire a burst of refreshes.
+ * we never fire a burst of refreshes. Requests that fail while the refresh is
+ * in flight wait on the same promise and retry once with the new cookie.
  */
 let refreshPromise: Promise<unknown> | null = null;
 
@@ -47,6 +50,38 @@ function refreshSession(): Promise<unknown> {
   return refreshPromise;
 }
 
+const SESSION_CACHE_KEYS = ["auth/session", "addresses", "favorites", "orders"];
+
+let loggingOut = false;
+
+/** Invalid refresh token: clear the session and return to the login page. */
+async function handleSessionExpired(): Promise<void> {
+  if (loggingOut || typeof window === "undefined") return;
+  loggingOut = true;
+
+  try {
+    // Best effort: the backend clears the cookies even if the refresh token
+    // itself is already invalid.
+    await axiosInstanace.post(API_ENDPOINTS.AUTH.LOGOUT).catch(() => undefined);
+
+    await mutate(
+      (key) => SESSION_CACHE_KEYS.includes(String(key)),
+      undefined,
+      { revalidate: false }
+    );
+    window.dispatchEvent(new CustomEvent("auth:logged-out"));
+
+    const currentPath = `${window.location.pathname}${window.location.search}`;
+    if (!currentPath.startsWith("/auth/")) {
+      window.location.assign(
+        `/auth/login?redirect=${encodeURIComponent(currentPath)}`
+      );
+    }
+  } finally {
+    loggingOut = false;
+  }
+}
+
 axiosInstanace.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
@@ -59,8 +94,10 @@ axiosInstanace.interceptors.response.use(
       config._retried = true;
       try {
         await refreshSession();
-        return axiosInstanace(config);
+        return await axiosInstanace(config);
       } catch {
+        // A failed refresh means the session cannot be recovered.
+        void handleSessionExpired();
         return Promise.reject(error);
       }
     }

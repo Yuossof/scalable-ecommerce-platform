@@ -39,7 +39,12 @@ router.post(
 
 router.post("/product-attributes", isAuthenticated, requireRole("user"), productsController.createProductAttribute)
 
+// Merchandising controls for the homepage sections.
+router.patch("/skus/:skuId/compare-price", isAuthenticated, requireRole("user"), productsController.setCompareAtPrice)
+router.patch("/:productId/featured", isAuthenticated, requireRole("user"), productsController.setFeatured)
+
 router.get("/products-skus", productsController.getProductsWithSkus)
+router.get("/collections", productsController.getCollections)
 router.get("/", productsController.getProducts)
 router.get("/:productId", productsController.getProduct)
 

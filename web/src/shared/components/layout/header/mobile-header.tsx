@@ -1,18 +1,67 @@
 "use client"
 import LinkButton from "../../link-button-client-cmp"
 import { storeConfig } from "@/conf/config.store"
+import { useAuth } from "@/hooks/useAuth"
+import { useRouter } from "next/navigation"
+
 const MobileMenu = ({ onClose }: { onClose: () => void }) => {
+  const router = useRouter()
+  const { isAuthenticated, isLoading, logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+    onClose()
+    router.push("/")
+  }
+
   return (
     <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Account Links */}
         <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-          <LinkButton href="/login" className="flex-1 py-2.5 text-center bg-primary text-white rounded-lg font-medium text-sm">
-            Sign In
-          </LinkButton>
-          <LinkButton href="/register" className="flex-1 py-2.5 text-center border border-gray-200 text-gray-700 rounded-lg font-medium text-sm">
-            Register
-          </LinkButton>
+          {!isAuthenticated ? (
+            <>
+              <LinkButton
+                href="/auth/login"
+                onClick={onClose}
+                className="flex-1 py-2.5 text-center bg-primary text-white rounded-lg font-medium text-sm"
+              >
+                Sign In
+              </LinkButton>
+              <LinkButton
+                href="/auth/register"
+                onClick={onClose}
+                className="flex-1 py-2.5 text-center border border-gray-200 text-gray-700 rounded-lg font-medium text-sm"
+              >
+                Register
+              </LinkButton>
+            </>
+          ) : (
+            <>
+              <LinkButton
+                href="/account/orders"
+                onClick={onClose}
+                className="flex-1 py-2.5 text-center bg-primary text-white rounded-lg font-medium text-sm"
+              >
+                My Orders
+              </LinkButton>
+              <LinkButton
+                href="/account/addresses"
+                onClick={onClose}
+                className="flex-1 py-2.5 text-center border border-gray-200 text-gray-700 rounded-lg font-medium text-sm"
+              >
+                Addresses
+              </LinkButton>
+              <button
+                type="button"
+                onClick={() => void handleLogout()}
+                disabled={isLoading}
+                className="py-2.5 px-3 text-sm font-medium text-text-secondary hover:text-red-600 disabled:opacity-50"
+              >
+                Sign out
+              </button>
+            </>
+          )}
         </div>
 
         {/* Categories */}
@@ -22,7 +71,7 @@ const MobileMenu = ({ onClose }: { onClose: () => void }) => {
             {storeConfig.categories.map((cat) => (
               <LinkButton
                 key={cat.slug}
-                href={`/category/${cat.slug}`}
+                href={`/shop?category=${cat.slug}`}
                 onClick={onClose}
                 className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >

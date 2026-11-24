@@ -11,7 +11,11 @@ const skuData = {
 };
 
 const createService = (
-    createSku: (data: typeof skuData & { quantity: number | string; price: number | string }) => Promise<unknown>
+    createSku: (data: typeof skuData & {
+        quantity: number | string;
+        price: number | string;
+        compare_at_price?: number | null;
+    }) => Promise<unknown>
 ) => {
     const repository = {
         createSku,
@@ -41,6 +45,7 @@ describe("ProductsService.createSku", () => {
             ...skuData,
             quantity: 10,
             price: 12.5,
+            compare_at_price: null,
         });
     });
 
