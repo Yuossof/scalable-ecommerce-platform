@@ -24,7 +24,8 @@ export const REFRESH_COOKIE_MAX_AGE = durationToMs(config.refreshTokenEx, 7 * 24
 
 const cookieOptions = (maxAge: number) => ({
     httpOnly: true,
-    secure: config.nodeEnv === "production",
+    // secure: config.nodeEnv === "production",
+    secure: false,
     sameSite: "lax" as const,
     maxAge,
 })
