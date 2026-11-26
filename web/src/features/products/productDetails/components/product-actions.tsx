@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { ApiError } from '@/shared/lib/errors/apiError';
 import type { AppDispatch, RootState } from '@/store';
 import {
-  addCartItem,
+  addCartItem,  
   removeCartItem,
   selectCartItemBySku,
   setCartItemQuantity,

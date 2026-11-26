@@ -12,6 +12,7 @@ type ShopCategoryState = {
   selectedCategoryId: string | null;
   categoryResolved: boolean;
   loading: boolean;
+  hasFetched: boolean;
   error: string;
 };
 
@@ -20,10 +21,15 @@ const initialState: ShopCategoryState = {
   selectedCategoryId: null,
   categoryResolved: false,
   loading: false,
+  hasFetched: false,
   error: "",
 };
 
-export const fetchCategories = createAsyncThunk(
+export const fetchCategories = createAsyncThunk<
+  Category[],
+  void,
+  { state: { categories: ShopCategoryState }; rejectValue: string }
+>(
   "categories/fetchCategories",
   async (_, thunkAPI) => {
     try {
@@ -35,6 +41,12 @@ export const fetchCategories = createAsyncThunk(
 
       return thunkAPI.rejectWithValue("Something went wrong");
     }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { loading, hasFetched } = getState().categories;
+      return !loading && !hasFetched;
+    },
   }
 );
 
@@ -51,6 +63,7 @@ const shopCategorySlice = createSlice({
     },
     addItems: (state, action: PayloadAction<Category[]>) => {
       state.items = action.payload;
+      state.hasFetched = true;
     },
   },
   extraReducers(builder) {
@@ -62,6 +75,7 @@ const shopCategorySlice = createSlice({
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
+        state.hasFetched = true;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;

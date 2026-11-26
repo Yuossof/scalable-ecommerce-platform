@@ -4,8 +4,29 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { storeConfig } from "@/conf/config.store"
 import { useAuth } from "@/hooks/useAuth"
+<<<<<<< HEAD
 
 const MobileMenu = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+=======
+import { useRouter } from "next/navigation"
+import type { Category } from "@/shared/types/api"
+
+interface MobileMenuProps {
+  onClose: () => void;
+  categories: Category[];
+  categoriesLoading: boolean;
+  categoriesError: string;
+  onRetryCategories: () => void;
+}
+
+const MobileMenu = ({
+  onClose,
+  categories,
+  categoriesLoading,
+  categoriesError,
+  onRetryCategories,
+}: MobileMenuProps) => {
+>>>>>>> 4da06ca (feat: enhance category management with loading and error handling in mobile and main headers)
   const router = useRouter()
   const { isAuthenticated, isLoading, logout } = useAuth()
 
@@ -39,6 +60,7 @@ const MobileMenu = ({ open, onClose }: { open: boolean; onClose: () => void }) =
         </div>
 
         <div className="py-4">
+<<<<<<< HEAD
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Shop by category</h2>
           <ul className="grid grid-cols-2 gap-2">
             {storeConfig.categories.map((category) => (
@@ -54,6 +76,38 @@ const MobileMenu = ({ open, onClose }: { open: boolean; onClose: () => void }) =
               </li>
             ))}
           </ul>
+=======
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Categories</p>
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map((cat) => (
+              <LinkButton
+                key={cat.id}
+                href={`/shop?category=${encodeURIComponent(cat.slug)}`}
+                onClick={onClose}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
+                  {cat.name.charAt(0)}
+                </span>
+                <span className="text-sm font-medium text-gray-700">{cat.name}</span>
+              </LinkButton>
+            ))}
+            {categoriesLoading && (
+              <p className="col-span-2 text-sm text-gray-500">Loading categories...</p>
+            )}
+            {categoriesError && (
+              <div className="col-span-2 text-sm text-red-600">
+                <p>Could not load categories.</p>
+                <button type="button" onClick={onRetryCategories} className="mt-1 underline">
+                  Try again
+                </button>
+              </div>
+            )}
+            {!categoriesLoading && !categoriesError && categories.length === 0 && (
+              <p className="col-span-2 text-sm text-gray-500">No categories available.</p>
+            )}
+          </div>
+>>>>>>> 4da06ca (feat: enhance category management with loading and error handling in mobile and main headers)
         </div>
 
         <div className="border-t border-slate-100 pt-2">
