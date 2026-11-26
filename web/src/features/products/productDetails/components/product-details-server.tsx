@@ -1,6 +1,7 @@
 import { CalendarDays, Layers3, PackageCheck } from 'lucide-react';
 import ProductGallery from './product-gallery';
 import ProductPurchase from './product-purchase';
+import FavoriteButton from '@/features/favorites/components/favorite-button';
 import { getProductStock } from '@/shared/lib/api/mappers';
 import type { Product } from '@/shared/types/api';
 
@@ -41,9 +42,12 @@ export default function ProductDetailsServer({ product }: { product: Product }) 
             </div>
 
             <p className="mb-3 text-[11px] font-medium uppercase tracking-[.2em] text-text-muted">Product details</p>
-            <h1 id="product-name" className="text-3xl font-semibold leading-tight tracking-[-.04em] sm:text-4xl lg:text-[42px]">
-              {product.name}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <h1 id="product-name" className="min-w-0 flex-1 text-3xl font-semibold leading-tight tracking-[-.04em] sm:text-4xl lg:text-[42px]">
+                {product.name}
+              </h1>
+              <FavoriteButton productId={product.id} className="shrink-0" />
+            </div>
             {product.summary && (
               <p className="mt-4 text-base leading-7 text-text-secondary">{product.summary}</p>
             )}

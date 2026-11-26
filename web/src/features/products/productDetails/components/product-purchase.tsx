@@ -4,7 +4,6 @@ import { useState } from 'react';
 import VariantSelector from './variant-selector';
 import ProductActions from './product-actions';
 import { getDefaultSku } from '@/shared/lib/api/mappers';
-import FavoriteButton from '@/features/favorites/components/favorite-button';
 import type { Product } from '@/shared/types/api';
 
 function formatPrice(price: number) {
@@ -46,13 +45,10 @@ export default function ProductPurchase({ product }: { product: Product }) {
         selectedSkuId={selectedSku.id}
         onSelect={setSelectedSkuId}
       />
-      <div className="flex flex-wrap items-center gap-3">
-        <ProductActions
-          skuId={selectedSku.id}
-          maxQuantity={selectedSku.quantity}
-        />
-        <FavoriteButton productId={product.id} />
-      </div>
+      <ProductActions
+        skuId={selectedSku.id}
+        maxQuantity={selectedSku.quantity}
+      />
     </div>
   );
 }
