@@ -58,9 +58,20 @@ export class ProductsController {
 
   getProductsWithSkus = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const products = await this.productService.listAllWithSkus()
+      const result = await this.productService.listCatalogWithSkus({
+        category: typeof req.query.category === "string" ? req.query.category : undefined,
+        price: typeof req.query.price === "string" ? req.query.price : undefined,
+        minPrice: typeof req.query.minPrice === "string" ? req.query.minPrice : undefined,
+        maxPrice: typeof req.query.maxPrice === "string" ? req.query.maxPrice : undefined,
+        q: typeof req.query.q === "string" ? req.query.q : undefined,
+        sort: typeof req.query.sort === "string" ? req.query.sort : undefined,
+        page: typeof req.query.page === "string" ? req.query.page : undefined,
+        limit: typeof req.query.limit === "string" ? req.query.limit : undefined,
+      })
       return res.status(200).json({
-        data: products
+        data: result.products,
+        meta: result.meta,
+        facets: result.facets,
       })
     } catch (error) {
       next(error)

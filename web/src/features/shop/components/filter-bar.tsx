@@ -10,7 +10,7 @@ const FilterBar = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { category, prices, query, sort, filtered, currentPage, pageSize } = useShopProducts()
+  const { category, prices, query, sort, total, currentPage, pageSize } = useShopProducts()
 
   const [sortOpen, setSortOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'grid-sm' | 'list'>('grid')
@@ -56,8 +56,8 @@ const FilterBar = () => {
 
   const clearAllFilters = () => updateParams({ category: null, price: null, q: null })
 
-  const start = filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1
-  const end = Math.min(currentPage * pageSize, filtered.length)
+  const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1
+  const end = Math.min(currentPage * pageSize, total)
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-4 mb-6">
@@ -96,7 +96,7 @@ const FilterBar = () => {
           {/* Results Count */}
           <span className="text-sm text-[var(--color-slate-500)] hidden sm:block">
             <span className="font-semibold text-[var(--color-slate-900)]">{start}-{end}</span> of{' '}
-            <span className="font-semibold text-[var(--color-slate-900)]">{filtered.length}</span> products
+            <span className="font-semibold text-[var(--color-slate-900)]">{total}</span> products
           </span>
 
           <div className="h-6 w-px bg-[var(--color-slate-200)] hidden sm:block" />

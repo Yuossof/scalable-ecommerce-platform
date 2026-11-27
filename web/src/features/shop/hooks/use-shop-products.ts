@@ -3,22 +3,24 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
+import useSWR from "swr";
 import type { AppDispatch, RootState } from "@/store";
 import { fetchCategories } from "@/store/slices/shop-category-slice";
-import { useProducts } from "@/shared/hooks/use-products";
+import {
+  getShopProductsService,
+  type ShopProductsCatalog,
+  type ShopProductsQuery,
+} from "@/shared/services/products.service";
 import {
   PAGE_SIZE,
-  applyShopFilters,
   isSortValue,
-  paginate,
   parseMulti,
-  sortProducts,
   type SortValue,
 } from "@/features/shop/lib/shop-filters";
 
 /**
- * Reads the shop filters from the URL, loads the catalogue once (SWR) and
- * returns the filtered / sorted / paginated slice for the current page.
+ * Reads the shop filters from the URL and fetches the server-filtered,
+ * server-sorted, and server-paginated product slice via SWR.
  */
 export function useShopProducts() {
   const searchParams = useSearchParams();
@@ -28,8 +30,6 @@ export function useShopProducts() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useSelector((state: RootState) => state.categories);
-
-  const { products, isLoading, isError } = useProducts();
 
   useEffect(() => {
     if (!categoriesLoading && !categoriesError && categories.length === 0) {
@@ -51,27 +51,53 @@ export function useShopProducts() {
   const sortParam = searchParams.get("sort");
   const sort: SortValue = isSortValue(sortParam) ? sortParam : "newest";
   const pageParam = Number(searchParams.get("page"));
-  const requestedPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+  const requestedPage =
+    Number.isFinite(pageParam) && pageParam > 0 ? Math.trunc(pageParam) : 1;
 
-  const filtered = useMemo(
-    () => sortProducts(applyShopFilters(products, { categoryId, prices, query }), sort),
-    [products, categoryId, prices, query, sort]
+  const requestParams: ShopProductsQuery = useMemo(
+    () => ({
+      category: categorySlug || undefined,
+      price: prices.length > 0 ? prices.join(",") : undefined,
+      q: query || undefined,
+      sort,
+      page: requestedPage,
+      limit: PAGE_SIZE,
+    }),
+    [categorySlug, prices, query, sort, requestedPage]
   );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const currentPage = Math.min(requestedPage, totalPages);
-  const pageItems = useMemo(
-    () => paginate(filtered, currentPage),
-    [filtered, currentPage]
+  const swrKey = useMemo(
+    () => ["products/catalog", JSON.stringify(requestParams)] as const,
+    [requestParams]
   );
+
+  const { data, error, isLoading, mutate } = useSWR<ShopProductsCatalog>(
+    swrKey,
+    () => getShopProductsService(requestParams),
+    {
+      keepPreviousData: true,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 10_000,
+    }
+  );
+
+  const pageItems = data?.products ?? [];
+  const total = data?.meta.total ?? 0;
+  const totalPages = data?.meta.totalPages ?? 1;
+  const currentPage = data?.meta.page ?? requestedPage;
+  const pageSize = data?.meta.limit ?? PAGE_SIZE;
+  const categoryCounts = data?.facets.categories ?? {};
+  const priceCounts = data?.facets.prices ?? {};
 
   return {
-    products,
-    filtered,
     pageItems,
+    total,
     totalPages,
     currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize,
+    categoryCounts,
+    priceCounts,
     category,
     categorySlug,
     categoryId,
@@ -80,6 +106,7 @@ export function useShopProducts() {
     sort,
     categories,
     isLoading,
-    isError,
+    isError: Boolean(error),
+    refreshProducts: mutate,
   };
 }

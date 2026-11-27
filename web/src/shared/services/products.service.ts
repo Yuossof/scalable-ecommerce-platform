@@ -6,7 +6,40 @@ import type { Product, RawProduct } from "@/shared/types/api";
 
 interface ProductsResponse {
   data: RawProduct[];
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  facets?: {
+    categories: Record<string, number>;
+    prices: Record<string, number>;
+  };
   success?: boolean;
+}
+
+export interface ShopProductsQuery {
+  category?: string;
+  price?: string;
+  q?: string;
+  sort?: "newest" | "price-asc" | "price-desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface ShopProductsCatalog {
+  products: Product[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  facets: {
+    categories: Record<string, number>;
+    prices: Record<string, number>;
+  };
 }
 
 interface ProductResponse {
@@ -35,10 +68,36 @@ export const getProductsService = async (params?: {
 };
 
 /**
- * `GET /products/products-skus` returns every product together with its SKUs
- * (price, stock, cover, images). It is the only listing source that carries
- * price/stock, and it is not paginated — filter/sort/paginate client-side.
+ * Server-filtered, sorted, and paginated product catalog with SKUs and facet counts.
  */
+export const getShopProductsService = async (
+  params: ShopProductsQuery
+): Promise<ShopProductsCatalog> => {
+  try {
+    const res = await axiosInstanace.get<ProductsResponse>(
+      API_ENDPOINTS.PRODUCTS.GET_WITH_SKUS,
+      { params }
+    );
+    const products = mapProducts(res.data.data);
+    return {
+      products,
+      meta: res.data.meta ?? {
+        total: products.length,
+        page: params.page ?? 1,
+        limit: params.limit ?? (products.length || 12),
+        totalPages: 1,
+      },
+      facets: res.data.facets ?? {
+        categories: {},
+        prices: {},
+      },
+    };
+  } catch (error) {
+    throw handleApiError(error);
+  }
+};
+
+/** Unfiltered listing of all products with SKUs. */
 export const getProductsWithSkusService = async (): Promise<Product[]> => {
   try {
     const res = await axiosInstanace.get<ProductsResponse>(

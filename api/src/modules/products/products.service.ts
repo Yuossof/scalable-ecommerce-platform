@@ -1,6 +1,16 @@
 import { S3StorageService } from "../../services/s3/s3.service.js";
 import { ProductsRepository } from "./products.repository.js";
-import { CreateProductAttributeDTO, CreateProductDTO, CreateSkuDTO, IProduct, ISku } from "./products.types.js";
+import {
+    CreateProductAttributeDTO,
+    CreateProductDTO,
+    CreateSkuDTO,
+    IProduct,
+    ISku,
+    NormalizedProductListQuery,
+    PriceRangeFilter,
+    ProductSortOption,
+    RawProductListQuery,
+} from "./products.types.js";
 import { BaseError } from "../../common/errors/base.error.js";
 import { client } from "../../config/redis.js";
 
@@ -9,6 +19,38 @@ type CollectionProduct = IProduct & {
 }
 
 const COLLECTION_LIMIT = 8
+const DEFAULT_SHOP_PAGE_SIZE = 12
+const MAX_SHOP_PAGE_SIZE = 100
+const VALID_SORT_OPTIONS = new Set<ProductSortOption>(["newest", "price-asc", "price-desc"])
+
+function parsePriceToken(token: string): PriceRangeFilter | null {
+    const trimmed = token.trim();
+    if (!trimmed) return null;
+
+    const plusMatch = /^(\d+(?:\.\d+)?)\+$/.exec(trimmed);
+    if (plusMatch) {
+        const min = Number(plusMatch[1]);
+        return Number.isFinite(min) ? { min, max: null } : null;
+    }
+
+    const rangeMatch = /^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/.exec(trimmed);
+    if (rangeMatch) {
+        const min = Number(rangeMatch[1]);
+        const max = Number(rangeMatch[2]);
+        if (Number.isFinite(min) && Number.isFinite(max) && max > min) {
+            return { min, max };
+        }
+    }
+
+    return null;
+}
+
+function parseOptionalNonNegativeNumber(value: string | number | undefined): number | undefined {
+    if (value === undefined || value === "") return undefined;
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+    return parsed;
+}
 
 export class ProductsService {
     private productRepository: ProductsRepository
@@ -114,6 +156,79 @@ export class ProductsService {
 
     async listAllWithSkus() {
         return this.productRepository.listAllWithSkus()
+    }
+
+    /** Server-side filtering, sorting, pagination, and facet counts for the shop listing. */
+    async listCatalogWithSkus(rawQuery: RawProductListQuery = {}) {
+        const normalized = this.normalizeCatalogQuery(rawQuery);
+        const { total, facets } = await this.productRepository.findCatalogMetaAndFacets(normalized);
+
+        if (normalized.page !== undefined || normalized.limit !== undefined) {
+            const limit = normalized.limit ?? DEFAULT_SHOP_PAGE_SIZE;
+            const totalPages = Math.max(1, Math.ceil(total / limit));
+            const page = Math.min(normalized.page ?? 1, totalPages);
+            const offset = (page - 1) * limit;
+            const products = await this.productRepository.findCatalogWithSkus(normalized, { limit, offset });
+
+            return {
+                products,
+                meta: { total, page, limit, totalPages },
+                facets,
+            };
+        }
+
+        const products = await this.productRepository.findCatalogWithSkus(normalized);
+        return {
+            products,
+            meta: {
+                total,
+                page: 1,
+                limit: total || DEFAULT_SHOP_PAGE_SIZE,
+                totalPages: 1,
+            },
+            facets,
+        };
+    }
+
+    normalizeCatalogQuery(raw: RawProductListQuery): NormalizedProductListQuery {
+        const category = raw.category?.trim() || undefined;
+        const q = raw.q?.trim() || undefined;
+        const sort: ProductSortOption =
+            raw.sort && VALID_SORT_OPTIONS.has(raw.sort as ProductSortOption)
+                ? (raw.sort as ProductSortOption)
+                : "newest";
+
+        const rawPriceTokens = (raw.price ?? "")
+            .split(",")
+            .map((token) => token.trim())
+            .filter(Boolean);
+        const priceRanges = rawPriceTokens
+            .map(parsePriceToken)
+            .filter((range): range is PriceRangeFilter => range !== null);
+
+        const parsedPage = Number(raw.page);
+        const page =
+            raw.page !== undefined && raw.page !== "" && Number.isFinite(parsedPage) && parsedPage > 0
+                ? Math.trunc(parsedPage)
+                : undefined;
+
+        const parsedLimit = Number(raw.limit);
+        const limit =
+            raw.limit !== undefined && raw.limit !== "" && Number.isFinite(parsedLimit) && parsedLimit > 0
+                ? Math.min(MAX_SHOP_PAGE_SIZE, Math.trunc(parsedLimit))
+                : undefined;
+
+        return {
+            category,
+            priceRanges,
+            hasInvalidPriceFilter: rawPriceTokens.length > 0 && priceRanges.length === 0,
+            minPrice: parseOptionalNonNegativeNumber(raw.minPrice),
+            maxPrice: parseOptionalNonNegativeNumber(raw.maxPrice),
+            q,
+            sort,
+            page,
+            limit,
+        };
     }
 
     /** Products grouped into the homepage discovery sections. */

@@ -52,3 +52,45 @@ export interface IProductAttribute {
     value: string;
     created_at: string;
 }
+
+export type ProductSortOption = "newest" | "price-asc" | "price-desc";
+
+export interface PriceRangeFilter {
+    min: number;
+    max: number | null;
+}
+
+export interface RawProductListQuery {
+    category?: string;
+    price?: string;
+    minPrice?: string | number;
+    maxPrice?: string | number;
+    q?: string;
+    sort?: string;
+    page?: string | number;
+    limit?: string | number;
+}
+
+export interface NormalizedProductListQuery {
+    category?: string;
+    priceRanges: PriceRangeFilter[];
+    hasInvalidPriceFilter: boolean;
+    minPrice?: number;
+    maxPrice?: number;
+    q?: string;
+    sort: ProductSortOption;
+    page?: number;
+    limit?: number;
+}
+
+export interface ProductListMeta {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface ProductListFacets {
+    categories: Record<string, number>;
+    prices: Record<string, number>;
+}

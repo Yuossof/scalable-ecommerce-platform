@@ -27,7 +27,7 @@ const ProductsGrid = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { pageItems, totalPages, currentPage, isLoading, isError, filtered } = useShopProducts()
+  const { pageItems, totalPages, currentPage, isLoading, isError, total, refreshProducts } = useShopProducts()
 
   const goToPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -52,7 +52,7 @@ const ProductsGrid = () => {
       <div className="py-24 text-center">
         <p className="text-gray-500">We couldn&apos;t load the products right now.</p>
         <button
-          onClick={() => router.refresh()}
+          onClick={() => void refreshProducts()}
           className="mt-4 text-sm font-semibold text-slate-800 hover:underline"
         >
           Try again
@@ -61,7 +61,7 @@ const ProductsGrid = () => {
     )
   }
 
-  if (filtered.length === 0) {
+  if (total === 0) {
     return (
       <div className="py-24 text-center">
         <p className="text-lg font-semibold text-gray-900">No products found</p>

@@ -1,36 +1,28 @@
 "use client"
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import ShopSidebar from './side-bar'
 import { useShopProducts } from '@/features/shop/hooks/use-shop-products'
-import { PRICE_RANGES, countByCategory, countByPriceRange, parseMulti } from '@/features/shop/lib/shop-filters'
+import { parseMulti } from '@/features/shop/lib/shop-filters'
 
 const SidebarWrapper = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { categories, products, categorySlug, prices, query, isLoading } = useShopProducts()
+  const {
+    categories,
+    categoryCounts,
+    priceCounts,
+    categorySlug,
+    prices,
+    query,
+    isLoading,
+  } = useShopProducts()
 
   const [expandedSections, setExpandedSections] = useState({
     categories: true,
     price: true,
   })
-
-  const categoryCounts = useMemo(
-    () =>
-      Object.fromEntries(
-        categories.map((cat) => [cat.slug, countByCategory(products, cat.id)])
-      ),
-    [categories, products]
-  )
-
-  const priceCounts = useMemo(
-    () =>
-      Object.fromEntries(
-        PRICE_RANGES.map((range) => [range.value, countByPriceRange(products, range.value)])
-      ),
-    [products]
-  )
 
   const updateParams = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString())
