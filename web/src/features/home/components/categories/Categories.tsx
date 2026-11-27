@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react'
 
 import LinkButton from '@/shared/components/link-button-client-cmp'
+import { CategoryImage } from '@/shared/components/category-image'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCategories } from '@/store/slices/shop-category-slice'
 import { AppDispatch, RootState } from '@/store'
@@ -57,11 +58,13 @@ const Categories = () => {
                             href={`/shop?category=${cat.slug}`}
                             className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
                         >
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-primary-light flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span className="text-primary text-2xl font-black uppercase">
-                                    {cat.name.charAt(0)}
-                                </span>
-                            </div>
+                            <CategoryImage
+                                name={cat.name}
+                                image={cat.image}
+                                sizes="(max-width: 640px) 80px, 96px"
+                                className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-primary-light group-hover:scale-110 transition-transform"
+                                fallbackClassName="text-primary text-2xl font-black uppercase"
+                            />
 
                             <span className="text-xs sm:text-sm font-medium text-gray-600 text-center">
                                 {cat.name}

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, ChevronDown, LayoutGrid } from "lucide-react"
 import { storeConfig } from "@/conf/config.store"
+import { CategoryImage } from "@/shared/components/category-image"
 import type { Category } from "@/shared/types/api"
 
 interface CategoriesBarProps {
@@ -47,9 +48,16 @@ const CategoriesBar = ({ categories, loading, error, onRetry }: CategoriesBarPro
                 <Link
                   href={`/shop?category=${encodeURIComponent(category.slug)}`}
                   onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}
-                  className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="flex min-h-11 items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  {category.name}
+                  <CategoryImage
+                    name={category.name}
+                    image={category.image}
+                    sizes="24px"
+                    className="size-6 rounded-md bg-primary/10"
+                    fallbackClassName="text-xs font-bold uppercase text-primary"
+                  />
+                  <span className="truncate">{category.name}</span>
                 </Link>
               </li>
             ))}

@@ -1,5 +1,6 @@
 // features/shop/components/sidebar/side-bar.tsx
 import { Search, ChevronDown, Zap } from 'lucide-react'
+import { CategoryImage } from '@/shared/components/category-image'
 import type { Category } from '@/shared/types/api'
 import { PRICE_RANGES } from '@/features/shop/lib/shop-filters'
 
@@ -95,13 +96,22 @@ const ShopSidebar = ({
                   <button
                     key={cat.id}
                     onClick={() => onSelectCategory(cat.slug)}
-                    className={`w-full flex items-center justify-between p-3 cursor-pointer rounded-lg transition-colors ${category === cat.slug
+                    className={`w-full flex items-center justify-between gap-2 p-3 cursor-pointer rounded-lg transition-colors ${category === cat.slug
                       ? 'bg-slate-100 text-slate-900'
                       : 'hover:bg-gray-50 text-gray-700'
                       }`}
                   >
-                    <span className="text-sm font-medium">{cat.name}</span>
-                    <span className={`text-xs ${category === cat.slug ? 'text-slate-600' : 'text-gray-400'}`}>
+                    <span className="flex min-w-0 items-center gap-2.5">
+                      <CategoryImage
+                        name={cat.name}
+                        image={cat.image}
+                        sizes="24px"
+                        className="size-6 rounded-md bg-primary/10"
+                        fallbackClassName="text-xs font-bold uppercase text-primary"
+                      />
+                      <span className="truncate text-sm font-medium">{cat.name}</span>
+                    </span>
+                    <span className={`shrink-0 text-xs ${category === cat.slug ? 'text-slate-600' : 'text-gray-400'}`}>
                       {categoryCounts[cat.slug] ?? 0}
                     </span>
                   </button>

@@ -53,6 +53,7 @@ export function mapCategory(raw: Category): Category {
     name: raw.name,
     slug: raw.slug,
     description: raw.description ?? null,
+    image: raw.image ?? null,
     created_at: raw.created_at,
     updated_at: raw.updated_at ?? null,
     deleted_at: raw.deleted_at ?? null,

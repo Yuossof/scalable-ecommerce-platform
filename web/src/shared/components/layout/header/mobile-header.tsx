@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { storeConfig } from "@/conf/config.store"
 import { useAuth } from "@/hooks/useAuth"
+import { CategoryImage } from "@/shared/components/category-image"
 import type { Category } from "@/shared/types/api"
 
 interface MobileMenuProps {
@@ -65,9 +66,13 @@ const MobileMenu = ({
                   onClick={onClose}
                   className="flex min-h-11 items-center gap-3 rounded-lg bg-slate-50 px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold uppercase text-primary">
-                    {category.name.charAt(0)}
-                  </span>
+                  <CategoryImage
+                    name={category.name}
+                    image={category.image}
+                    sizes="32px"
+                    className="size-8 rounded-full bg-primary/10"
+                    fallbackClassName="text-sm font-bold uppercase text-primary"
+                  />
                   <span className="text-sm font-medium">{category.name}</span>
                 </Link>
               </li>
