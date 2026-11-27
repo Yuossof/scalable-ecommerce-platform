@@ -6,7 +6,7 @@ const tokenService = new TokenService()
 
 export async function getUserIdFromRefreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-        const refreshToken = req.cookies["refreshToken"]
+        const refreshToken = req.cookies?.refreshToken
 
         if (!refreshToken) {
             throw new BaseError(

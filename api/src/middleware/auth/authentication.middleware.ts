@@ -8,7 +8,7 @@ const tokenService = new TokenService()
 
 export async function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     try {
-        const accessToken = req.cookies["accessToken"]
+        const accessToken = req.cookies?.accessToken
 
         if (!accessToken) {
             throw new BaseError(

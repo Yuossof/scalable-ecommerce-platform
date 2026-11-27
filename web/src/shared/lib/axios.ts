@@ -1,4 +1,8 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from "axios";
 import { mutate } from "swr";
 import { API_ENDPOINTS } from "./api/endpoints";
 
@@ -32,17 +36,40 @@ const AUTH_BYPASS_ROUTES: string[] = [
   API_ENDPOINTS.AUTH.LOGOUT,
 ];
 
-/**
- * Single-flight refresh: concurrent 401s share one `GET /auth/refresh` call so
- * we never fire a burst of refreshes. Requests that fail while the refresh is
- * in flight wait on the same promise and retry once with the new cookie.
- */
-let refreshPromise: Promise<unknown> | null = null;
+function normalizeRequestPath(url: string): string {
+  if (!url) return "";
+  const withoutOrigin = url.replace(/^https?:\/\/[^/]+/i, "");
+  const withoutQuery = withoutOrigin.split(/[?#]/)[0] ?? "";
+  const withoutApiPrefix = withoutQuery.startsWith("/api/")
+    ? withoutQuery.slice(4)
+    : withoutQuery;
+  return withoutApiPrefix.startsWith("/") ? withoutApiPrefix : `/${withoutApiPrefix}`;
+}
 
-function refreshSession(): Promise<unknown> {
+function isAuthBypassRoute(url?: string): boolean {
+  const path = normalizeRequestPath(url ?? "");
+  return AUTH_BYPASS_ROUTES.some(
+    (route) => path === route || path.startsWith(`${route}/`)
+  );
+}
+
+export interface RefreshResponsePayload {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Single-flight refresh: concurrent 401s (and `useAuth` probes) share one
+ * `GET /auth/refresh` call so we never fire a burst of refreshes. Requests
+ * that fail while the refresh is in flight wait on the same promise and retry
+ * once with the new cookie.
+ */
+let refreshPromise: Promise<AxiosResponse<RefreshResponsePayload>> | null = null;
+
+export function refreshSession(): Promise<AxiosResponse<RefreshResponsePayload>> {
   if (!refreshPromise) {
     refreshPromise = axiosInstanace
-      .get(API_ENDPOINTS.AUTH.REFRESH)
+      .get<RefreshResponsePayload>(API_ENDPOINTS.AUTH.REFRESH)
       .finally(() => {
         refreshPromise = null;
       });
@@ -87,19 +114,27 @@ axiosInstanace.interceptors.response.use(
   async (error: AxiosError) => {
     const config = error.config as InternalAxiosRequestConfig | undefined;
     const status = error.response?.status;
-    const url = config?.url ?? "";
-    const isAuthRoute = AUTH_BYPASS_ROUTES.some((route) => url.startsWith(route));
 
-    if (status === 401 && config && !config._retried && !isAuthRoute) {
+    if (
+      status === 401 &&
+      config &&
+      !config._retried &&
+      !isAuthBypassRoute(config.url)
+    ) {
       config._retried = true;
       try {
         await refreshSession();
-        return await axiosInstanace(config);
-      } catch {
-        // A failed refresh means the session cannot be recovered.
-        void handleSessionExpired();
-        return Promise.reject(error);
+      } catch (refreshError) {
+        const refreshStatus = axios.isAxiosError(refreshError)
+          ? refreshError.response?.status
+          : undefined;
+        if (refreshStatus === 401 || refreshStatus === 403) {
+          void handleSessionExpired();
+        }
+        return Promise.reject(refreshError);
       }
+
+      return axiosInstanace(config);
     }
 
     return Promise.reject(error);

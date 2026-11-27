@@ -135,6 +135,10 @@ export class AuthService {
 
 
   async refresh(userId: string, incomingRefreshToken: string) {
+    if (!incomingRefreshToken) {
+      throw new BaseError("InvalidRefreshToken", 401, true, "Invalid or expired refresh token");
+    }
+
     const storedToken = await client.get(`refresh_token:${userId}`) // redis
     if (!storedToken || storedToken !== incomingRefreshToken) {
       throw new BaseError("InvalidRefreshToken", 401, true, "Invalid or expired refresh token");

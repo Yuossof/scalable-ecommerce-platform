@@ -2,11 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "./auth.service.js";
 import { CreateUserDTO, ILoginUser } from "./auth.types.js";
 import {
-  ACCESS_COOKIE_MAX_AGE,
+  clearAuthCookies,
+  setAccessTokenCookie,
   setAuthCookies,
 } from "./auth.helper.js";
 import { TokenService } from "../../shared/services/token.service.js";
-import config from "../../config/env.js";
 import { client } from "../../config/redis.js";
 
 export class AuthController {
@@ -37,7 +37,7 @@ export class AuthController {
       const data = req.body as ILoginUser;
       const { userId } = await this.authService.login(data);
 
-      await setAuthCookies(res, userId, this.tokenService)
+      await setAuthCookies(res, userId, this.tokenService, req)
 
       return res.status(200).json({
         success: true,
@@ -69,7 +69,7 @@ export class AuthController {
         return res.status(400).json({ success: false, message: "Verification token is required" })
       }
       const userId = await this.authService.verify(token)
-      await setAuthCookies(res, userId, this.tokenService)
+      await setAuthCookies(res, userId, this.tokenService, req)
       return res.status(200).json({
         message: "email verified successfully"
       })
@@ -80,15 +80,12 @@ export class AuthController {
 
   refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies["refreshToken"]
+      const refreshToken = req.cookies?.refreshToken
       const accessToken = await this.authService.refresh(req.user.userId, refreshToken)
 
-      res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: config.nodeEnv === "production",
-        sameSite: "lax",
-        maxAge: ACCESS_COOKIE_MAX_AGE
-      })
+      res.set("Cache-Control", "no-store, no-cache, must-revalidate, private")
+      res.set("Pragma", "no-cache")
+      setAccessTokenCookie(res, accessToken, req)
 
       return res.status(200).json({
         success: true,
@@ -116,13 +113,7 @@ export class AuthController {
         }
       }
 
-      const cookieOptions = {
-        httpOnly: true,
-        secure: config.nodeEnv === "production",
-        sameSite: "lax" as const,
-      }
-      res.clearCookie("accessToken", cookieOptions)
-      res.clearCookie("refreshToken", cookieOptions)
+      clearAuthCookies(res, req)
 
       return res.status(200).json({ success: true, message: "Logged out" })
     } catch (error) {

@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import config from "../../config/env.js";
 import { client } from "../../config/redis.js";
 import { TokenService } from "../../shared/services/token.service.js";
@@ -22,28 +22,55 @@ export function durationToMs(value: string, fallback: number): number {
 export const ACCESS_COOKIE_MAX_AGE = durationToMs(config.accessTokenEx, 30 * 60 * 1000)
 export const REFRESH_COOKIE_MAX_AGE = durationToMs(config.refreshTokenEx, 7 * 24 * 60 * 60 * 1000)
 
-const cookieOptions = (maxAge: number) => ({
-    httpOnly: true,
-    // secure: config.nodeEnv === "production",
-    secure: false,
-    sameSite: "lax" as const,
-    maxAge,
-})
+/** Determines whether the incoming request arrived over HTTPS (directly or via proxy). */
+export function isSecureRequest(req?: Request): boolean {
+    if (!req) return false;
+    if (req.secure) return true;
+    const forwardedProto = req.headers["x-forwarded-proto"];
+    const proto = Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto;
+    return proto?.split(",")[0]?.trim().toLowerCase() === "https";
+}
+
+export function buildAuthCookieOptions(req?: Request, maxAge?: number): CookieOptions {
+    return {
+        httpOnly: true,
+        secure: isSecureRequest(req),
+        sameSite: "lax",
+        path: "/",
+        ...(maxAge !== undefined ? { maxAge } : {}),
+    };
+}
+
+export function setAccessTokenCookie(res: Response, accessToken: string, req?: Request) {
+    res.cookie(
+        "accessToken",
+        accessToken,
+        buildAuthCookieOptions(req ?? res.req, ACCESS_COOKIE_MAX_AGE)
+    );
+}
+
+export function clearAuthCookies(res: Response, req?: Request) {
+    const options = buildAuthCookieOptions(req ?? res.req);
+    res.clearCookie("accessToken", options);
+    res.clearCookie("refreshToken", options);
+}
 
 export const setAuthCookies = async (
     res: Response,
     userId: string,
-    tokenService: TokenService
+    tokenService: TokenService,
+    req?: Request
 ) => {
     const refreshToken = tokenService.generateRefreshToken(userId)
     const accessToken = tokenService.generateAccessToken(userId)
+    const request = req ?? res.req;
 
     await client.set(`refresh_token:${userId}`, refreshToken, {
         expiration: { type: "EX", value: Math.floor(REFRESH_COOKIE_MAX_AGE / 1000) }
     });
 
-    res.cookie("accessToken", accessToken, cookieOptions(ACCESS_COOKIE_MAX_AGE))
-    res.cookie("refreshToken", refreshToken, cookieOptions(REFRESH_COOKIE_MAX_AGE))
+    setAccessTokenCookie(res, accessToken, request)
+    res.cookie("refreshToken", refreshToken, buildAuthCookieOptions(request, REFRESH_COOKIE_MAX_AGE))
 
     return { refreshToken, accessToken }
 }

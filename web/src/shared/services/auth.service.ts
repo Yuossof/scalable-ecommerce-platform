@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from "@/shared/lib/api/endpoints";
-import { axiosInstanace } from "@/shared/lib/axios";
+import { axiosInstanace, refreshSession } from "@/shared/lib/axios";
 import { handleApiError } from "@/shared/lib/errors/handleApiError";
 
 export interface RegisterInput {
@@ -76,9 +76,7 @@ export const loginService = async (data: LoginInput): Promise<{ userId: string }
  */
 export const refreshSessionService = async (): Promise<RefreshResponse> => {
   try {
-    const res = await axiosInstanace.get<RefreshResponse>(
-      API_ENDPOINTS.AUTH.REFRESH
-    );
+    const res = await refreshSession();
     return res.data;
   } catch (error) {
     throw handleApiError(error);
