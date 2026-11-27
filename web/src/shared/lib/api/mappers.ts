@@ -181,6 +181,11 @@ export function mapOrderItem(raw: RawOrderItem): OrderItem {
   return {
     id: raw.id,
     products_sku_id: raw.products_sku_id,
+    product_id: raw.product_id ?? null,
+    product_name: raw.product_name ?? null,
+    sku: raw.sku ?? null,
+    cover: raw.cover ?? null,
+    summary: raw.summary ?? null,
     quantity: toNumber(raw.quantity),
     unit_price: toNumber(raw.unit_price),
   };

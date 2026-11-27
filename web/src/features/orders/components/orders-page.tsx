@@ -1,12 +1,13 @@
 // features/orders/components/orders-page.tsx
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Package, ShoppingBag } from 'lucide-react'
 import useSWR from 'swr'
 import { getOrdersService } from '@/shared/services/orders.service'
 import { useAuth } from '@/hooks/useAuth'
-import type { Order } from '@/shared/types/api'
+import type { Order, OrderItem } from '@/shared/types/api'
 
 function formatDate(value: string): string {
   const date = new Date(value)
@@ -33,6 +34,72 @@ function statusBadge(status: string): string {
 }
 
 const ordersFetcher = getOrdersService
+
+function OrderItemRow({ item }: { item: OrderItem }) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  const coverSrc = item.cover?.trim() || null
+  const showCover = Boolean(coverSrc) && failedSrc !== coverSrc
+  const title = item.product_name ?? 'Product item'
+  const lineTotal = item.unit_price * item.quantity
+
+  const titleNode = item.product_id ? (
+    <Link
+      href={`/products/${item.product_id}`}
+      className="text-sm font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2"
+    >
+      {title}
+    </Link>
+  ) : (
+    <p className="text-sm font-semibold text-gray-900 line-clamp-2">{title}</p>
+  )
+
+  return (
+    <div className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+      <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-xl overflow-hidden shrink-0">
+        {showCover && coverSrc ? (
+          <Image
+            src={coverSrc}
+            alt={title}
+            fill
+            sizes="80px"
+            className="object-contain p-1.5"
+            onError={() => setFailedSrc(coverSrc)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-[10px] uppercase text-gray-400">
+            No image
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        {titleNode}
+        {item.summary && (
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+            {item.summary}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mt-1">
+          {item.sku && (
+            <span className="font-mono text-gray-600">SKU: {item.sku}</span>
+          )}
+          <span>
+            Qty: <span className="font-medium text-gray-800">{item.quantity}</span>
+          </span>
+          <span>
+            Unit: <span className="font-medium text-gray-800">${item.unit_price.toFixed(2)}</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="text-right shrink-0">
+        <p className="text-sm font-semibold text-gray-900">
+          ${lineTotal.toFixed(2)}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 const OrdersPage = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -176,13 +243,37 @@ const OrdersPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    {order.items.length > 0 && (
+                      <div className="divide-y divide-gray-100 py-4 border-t border-gray-100">
+                        {order.items.map((item) => (
+                          <OrderItemRow key={item.id} item={item} />
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100">
                       <p className="text-sm text-gray-500">
                         {itemCount} {itemCount === 1 ? 'item' : 'items'}
                       </p>
-                      <p className="text-lg font-bold text-gray-900">
-                        ${order.total.toFixed(2)}
-                      </p>
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        {order.discount > 0 && (
+                          <>
+                            <span className="text-gray-500">
+                              Subtotal:{' '}
+                              <span className="font-medium text-gray-700">
+                                ${order.subtotal.toFixed(2)}
+                              </span>
+                            </span>
+                            <span className="text-emerald-600 font-medium">
+                              Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}: -$
+                              {order.discount.toFixed(2)}
+                            </span>
+                          </>
+                        )}
+                        <p className="text-lg font-bold text-gray-900">
+                          ${order.total.toFixed(2)}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 )

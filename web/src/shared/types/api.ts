@@ -153,6 +153,11 @@ export interface AddressInput {
 export interface RawOrderItem {
   id: string;
   products_sku_id: string;
+  product_id?: string | null;
+  product_name?: string | null;
+  sku?: string | null;
+  cover?: string | null;
+  summary?: string | null;
   quantity: number | string;
   unit_price: string | number;
 }
@@ -160,6 +165,11 @@ export interface RawOrderItem {
 export interface OrderItem {
   id: string;
   products_sku_id: string;
+  product_id: string | null;
+  product_name: string | null;
+  sku: string | null;
+  cover: string | null;
+  summary: string | null;
   quantity: number;
   unit_price: number;
 }

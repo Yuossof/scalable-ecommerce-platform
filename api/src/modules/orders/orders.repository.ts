@@ -52,8 +52,9 @@ export class OrdersRepository {
         return orders
     }
 
-    async findAllByUserId(userId: string) {
-        const orders = await sql`
+    private async findOrdersWithItems(userId: string, orderId?: string) {
+        const orderFilter = orderId ? sql`AND o.id = ${orderId}` : sql``;
+        return sql`
             SELECT
              o.id AS order_id,
              o.user_id,
@@ -69,52 +70,35 @@ export class OrdersRepository {
                  json_build_object(
                    'id', oi.id,
                    'products_sku_id', oi.products_sku_id,
+                   'product_id', p.id,
+                   'product_name', p.name,
+                   'sku', ps.sku,
+                   'cover', COALESCE(ps.cover, p.cover),
+                   'summary', p.summary,
                    'quantity', oi.quantity,
                    'unit_price', oi.unit_price
                  )
+                 ORDER BY oi.created_at ASC
                ) FILTER (WHERE oi.id IS NOT NULL), '[]'
              ) AS items
            FROM orders o
            LEFT JOIN order_items oi ON o.id = oi.order_id
+           LEFT JOIN products_skus ps ON oi.products_sku_id = ps.id
+           LEFT JOIN products p ON ps.product_id = p.id
            WHERE o.user_id = ${userId}
+           ${orderFilter}
            GROUP BY o.id
            ORDER BY o.created_at DESC;
-         `
+         `;
+    }
 
-        return orders
+    async findAllByUserId(userId: string) {
+        return this.findOrdersWithItems(userId);
     }
 
     async findByIdAndUserId(userId: string, orderId: string) {
-        const [order] = await sql`
-            SELECT
-             o.id AS order_id,
-             o.user_id,
-             o.subtotal,
-             o.discount,
-             o.coupon_code,
-             o.total,
-             o.status,
-             o.payment_status,
-             o.created_at,
-             COALESCE(
-               json_agg(
-                 json_build_object(
-                   'id', oi.id,
-                   'products_sku_id', oi.products_sku_id,
-                   'quantity', oi.quantity,
-                   'unit_price', oi.unit_price
-                 )
-               ) FILTER (WHERE oi.id IS NOT NULL), '[]'
-             ) AS items
-           FROM orders o
-           LEFT JOIN order_items oi ON o.id = oi.order_id
-           WHERE o.user_id = ${userId}
-           AND o.id = ${orderId}
-           GROUP BY o.id
-           ORDER BY o.created_at DESC;
-        `
-
-        return order
+        const [order] = await this.findOrdersWithItems(userId, orderId);
+        return order;
     }
 
 
