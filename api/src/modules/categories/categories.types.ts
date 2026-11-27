@@ -2,12 +2,14 @@ export interface CreateCategoryDTO {
     name: string;
     slug: string;
     description: string;
+    image?: string | null;
 }
 
 export interface UpdateCategoryDTO {
     name: string;
     slug: string;
     description: string;
+    image?: string | null;
 }
 
 export interface CreateSubCategoryDTO {
@@ -15,6 +17,7 @@ export interface CreateSubCategoryDTO {
     name: string;
     slug: string;
     description: string;
+    image?: string | null;
 }
 
 
@@ -23,4 +26,5 @@ export interface UpdateSubCategoryDTO {
     name: string;
     slug: string;
     description: string;
+    image?: string | null;
 }

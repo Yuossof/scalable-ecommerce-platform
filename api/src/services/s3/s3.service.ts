@@ -4,8 +4,8 @@ import config from "../../config/env.js";
 
 
 export class S3StorageService {
-    async uploadImage(file: Express.Multer.File) {
-        const key = `products/${crypto.randomUUID()}`
+    async uploadImage(file: Express.Multer.File, folder = "products") {
+        const key = `${folder}/${crypto.randomUUID()}`
 
         await s3.send(
             new PutObjectCommand({

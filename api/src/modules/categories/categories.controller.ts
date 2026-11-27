@@ -11,7 +11,7 @@ export class CategoriesController {
     createCategory = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = req.body as CreateCategoryDTO
-            const newCategory = await this.categoryService.create(data)
+            const newCategory = await this.categoryService.create(data, req.file)
             return res.status(201).json({
                 data: newCategory
             })
@@ -36,7 +36,19 @@ export class CategoriesController {
         try {
             const data = req.body as UpdateCategoryDTO
             const id = req.params.id as string
-            const updatedCategory = await this.categoryService.update(data, id)
+            const updatedCategory = await this.categoryService.update(data, id, req.file)
+            return res.status(200).json({
+                data: updatedCategory
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    updateCategoryImage = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const id = req.params.id as string
+            const updatedCategory = await this.categoryService.updateImage(id, req.file)
             return res.status(200).json({
                 data: updatedCategory
             })
